@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>充值快捷金额交互示例</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #203a52;
+      --muted: #8b9aaa;
+      --line: #e6edf5;
+      --input: #f4f6f9;
+      --primary: #238cff;
+      --primary2: #38c4ff;
+      --green: #19b982;
+      --tip: #daf9e6;
+      --orange: #f6a72f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #eef4fb 0%, #f7f9fc 100%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      color: var(--text);
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      gap: 28px;
+      padding: 24px;
+    }
+
+    .phone {
+      width: 390px;
+      min-height: 820px;
+      background: #fff;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 22px 70px rgba(26, 61, 92, .16);
+      border: 1px solid rgba(255,255,255,.9);
+      position: relative;
+    }
+
+    .status {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 22px;
+      font-weight: 800;
+      color: #0f1f2e;
+    }
+
+    .signal {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .battery {
+      background: #e9edf2;
+      padding: 2px 7px;
+      border-radius: 8px;
+      color: #111;
+      line-height: 1;
+    }
+
+    .header {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: #fff;
+    }
+
+    .back {
+      position: absolute;
+      left: 18px;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: #f0f3f7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: 500;
+      color: #274057;
+    }
+
+    .history {
+      position: absolute;
+      right: 18px;
+      color: #75889a;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .title {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: .04em;
+    }
+
+    .content {
+      padding: 16px 18px 34px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr;
+      background: #f0f3f7;
+      border: 1px solid #e4ebf3;
+      border-radius: 13px;
+      padding: 5px;
+      margin-bottom: 24px;
+    }
+
+    .tab {
+      height: 42px;
+      border-radius: 10px;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      font-weight: 900;
+      box-shadow: 0 1px 0 rgba(255,255,255,.8);
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .label {
+      font-size: 17px;
+      font-weight: 900;
+      margin-bottom: 12px;
+      color: #9aa9b5;
+    }
+
+    .select,
+    .input-wrap {
+      min-height: 52px;
+      background: var(--input);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      color: var(--text);
+      font-weight: 800;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+    }
+
+    .select {
+      justify-content: space-between;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    .select:active {
+      transform: scale(.99);
+    }
+
+    .coin {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .coin-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 900;
+      flex: none;
+    }
+
+    .usdt {
+      background: #22a97a;
+    }
+
+    .tron {
+      background: #e9162d;
+      font-size: 13px;
+    }
+
+    .bsc {
+      background: #f0b90b;
+      color: #121212;
+      font-size: 13px;
+    }
+
+    .arrow {
+      font-size: 22px;
+      color: #788a9b;
+      transform: rotate(90deg);
+    }
+
+    input {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 19px;
+      font-weight: 600;
+    }
+
+    input::placeholder {
+      color: #b7c2cd;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .quick {
+      height: 38px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: #edf1f6;
+      color: #65788a;
+      font-weight: 800;
+      cursor: pointer;
+      transition: .18s ease;
+      user-select: none;
+      font-size: 16px;
+    }
+
+    .quick.active {
+      border-color: var(--primary);
+      background: #f5f9ff;
+      color: #65788a;
+      box-shadow: inset 0 0 0 1px var(--primary);
+    }
+
+    .quick:active {
+      transform: scale(.96);
+    }
+
+    .deposit-info {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: 142px 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .qr {
+      width: 142px;
+      height: 142px;
+      background: #fff;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px #eef2f6;
+      display: grid;
+      place-items: center;
+    }
+
+    .qr svg {
+      width: 132px;
+      height: 132px;
+    }
+
+    .address-title {
+      font-size: 16px;
+      color: #9aa9b5;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .address {
+      min-height: 56px;
+      border-radius: 14px;
+      background: var(--input);
+      border: 1px solid var(--line);
+      padding: 11px 12px;
+      color: #8c9ba7;
+      font-size: 14px;
+      line-height: 1.45;
+      font-weight: 800;
+      word-break: break-all;
+    }
+
+    .address b {
+      color: var(--text);
+    }
+
+    .copy {
+      width: 100%;
+      height: 46px;
+      border: 0;
+      border-radius: 14px;
+      background: #e8edf3;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 900;
+      margin-top: 12px;
+      cursor: pointer;
+    }
+
+    .copy:active {
+      transform: translateY(1px);
+    }
+
+    .tip {
+      margin-top: 26px;
+      padding: 15px 14px;
+      border-radius: 16px;
+      background: var(--tip);
+      color: #678477;
+      display: flex;
+      gap: 10px;
+      line-height: 1.55;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .tip-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #10c36f;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      flex: none;
+      font-weight: 900;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 28px;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(17, 31, 45, .92);
+      color: #fff;
+      padding: 11px 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: .25s ease;
+      z-index: 20;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .pc-note {
+      width: 520px;
+      align-self: flex-start;
+      padding: 24px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.72);
+      color: #40576c;
+      box-shadow: 0 14px 45px rgba(26, 61, 92, .1);
+      line-height: 1.75;
+    }
+
+    .pc-note h2 {
+      margin: 0 0 12px;
+      color: #1f3a52;
+    }
+
+    .pc-note ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .pc-note b {
+      color: #1f3a52;
+    }
+
+    .modal-mask {
+      position: absolute;
+      inset: 0;
+      background: rgba(17, 31, 45, .34);
+      display: none;
+      align-items: flex-end;
+      z-index: 10;
+    }
+
+    .modal-mask.show {
+      display: flex;
+    }
+
+    .sheet {
+      width: 100%;
+      background: #fff;
+      border-radius: 20px 20px 0 0;
+      padding: 18px;
+      max-height: 460px;
+      animation: up .2s ease;
+    }
+
+    @keyframes up {
+      from { transform: translateY(30px); opacity: .5; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .sheet-title {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 16px;
+    }
+
+    .option {
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 12px;
+      padding: 0 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .option.active {
+      background: #f2f5f9;
+    }
+
+    .radio {
+      width: 22px;
+      height: 22px;
+      border: 4px solid #dce3ec;
+      border-radius: 50%;
+    }
+
+    .option.active .radio {
+      border-color: var(--primary);
+      box-shadow: inset 0 0 0 4px #fff;
+      background: var(--primary);
+    }
+
+    @media (max-width: 860px) {
+      .page {
+        padding: 0;
+        background: #fff;
+      }
+
+      .phone {
+        width: 100%;
+        min-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+        border: 0;
+      }
+
+      .pc-note {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="toast" id="toast">复制成功</div>
+
+  <main class="page">
+    <section class="phone">
+      <div class="status">
+        <div>9:41</div>
+        <div class="signal">▮▮▮ 5G <span class="battery">100</span></div>
+      </div>
+
+      <div class="header">
+        <div class="back">‹</div>
+        <div class="title">充值</div>
+        <div class="history">充提记录</div>
+      </div>
+
+      <div class="content">
+        <div class="tabs">
+          <div class="tab">加密货币</div>
+        </div>
+
+        <div class="field">
+          <div class="label">充值货币</div>
+          <div class="select" data-sheet="currency">
+            <div class="coin">
+              <span class="coin-icon usdt">₮</span>
+              <span id="currencyText">USDT</span>
+            </div>
+            <span class="arrow">›</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="label">选择链路网络</div>
+          <div class="select" data-sheet="network">
+            <div class="coin">
+              <span class="coin-icon tron" id="networkIcon">TRX</span>
+              <span id="networkText">Tron（Trc20）</span>
+            </div>
+            <span class="arrow">›</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="label">充值金额</div>
+          <div class="input-wrap">
+            <input id="amountInput" type="number" min="1" inputmode="decimal" value="10" />
+          </div>
+
+          <div class="quick-grid" id="quickGrid">
+            <button class="quick" data-amount="50">50</button>
+            <button class="quick" data-amount="100">100</button>
+            <button class="quick" data-amount="1000">1000</button>
+            <button class="quick" data-amount="5000">5000</button>
+          </div>
+        </div>
+
+        <div class="deposit-info">
+          <div class="qr" id="qrBox"></div>
+
+          <div>
+            <div class="address-title">充值地址</div>
+            <div class="address" id="addressText">TE4NT1BEeWWJkTgbVxyr355nH3oU<b>ihtz2d</b></div>
+            <button class="copy" id="copyBtn">▣　复制地址</button>
+          </div>
+        </div>
+
+        <div class="tip">
+          <span class="tip-icon">!</span>
+          <span>仅 USDT 至此存款地址。低于 1 USDT 的转账将不获入账。</span>
+        </div>
+      </div>
+
+      <div class="modal-mask" id="modalMask">
+        <div class="sheet">
+          <div class="sheet-title" id="sheetTitle">选择</div>
+          <div id="sheetOptions"></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="pc-note">
+      <h2>交互说明</h2>
+      <ul>
+        <li>充值页面默认金额由 <b>0</b> 调整为 <b>10</b>。</li>
+        <li>充值页面直接展示 <b>充值二维码</b> 和 <b>充值地址</b>，不需要用户手动获取。</li>
+        <li>快捷金额固定为 <b>50、100、1000、5000</b>。</li>
+        <li>点击快捷金额后，充值金额输入框自动回显对应金额，并显示选中状态。</li>
+        <li>用户可手动输入金额；手动输入金额与快捷金额一致时，对应快捷金额自动选中。</li>
+        <li>手动输入金额与快捷金额不一致时，快捷金额取消选中。</li>
+        <li>切换充值货币或链路网络后，二维码与充值地址同步刷新。</li>
+      </ul>
+    </aside>
+  </main>
+
+  <script>
+    const amountInput = document.getElementById('amountInput');
+    const quickButtons = [...document.querySelectorAll('.quick')];
+    const toast = document.getElementById('toast');
+    const copyBtn = document.getElementById('copyBtn');
+    const qrBox = document.getElementById('qrBox');
+    const addressText = document.getElementById('addressText');
+    const currencyText = document.getElementById('currencyText');
+    const networkText = document.getElementById('networkText');
+    const networkIcon = document.getElementById('networkIcon');
+    const modalMask = document.getElementById('modalMask');
+    const sheetTitle = document.getElementById('sheetTitle');
+    const sheetOptions = document.getElementById('sheetOptions');
+
+    let toastTimer = null;
+    let currentCurrency = 'USDT';
+    let currentNetwork = 'TRON';
+
+    const addresses = {
+      'USDT_TRON': 'TE4NT1BEeWWJkTgbVxyr355nH3oUihtz2d',
+      'USDT_BSC': '0x7c08c3Ef9a4B73b2E4E8bC1AfF8d238d63F8a901'
+    };
+
+    const currencyOptions = [
+      { label: 'USDT', value: 'USDT', icon: '₮', className: 'usdt' }
+    ];
+
+    const networkOptions = [
+      { label: 'Tron（Trc20）', value: 'TRON', icon: 'TRX', className: 'tron' },
+      { label: 'BSC（Bep20）', value: 'BSC', icon: 'BSC', className: 'bsc' }
+    ];
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1500);
+    }
+
+    function addressKey() {
+      return currentCurrency + '_' + currentNetwork;
+    }
+
+    function displayAddress(addr) {
+      if (!addr) return '--';
+      if (addr.length <= 10) return addr;
+      return addr.slice(0, -6) + '<b>' + addr.slice(-6) + '</b>';
+    }
+
+    function generateQr(seedText) {
+      let seed = 0;
+      for (let i = 0; i < seedText.length; i++) seed += seedText.charCodeAt(i) * (i + 1);
+
+      const size = 29;
+      const cell = 4;
+      const padding = 8;
+      const total = size * cell + padding * 2;
+      let rects = '';
+
+      function isFinder(x, y) {
+        const inTopLeft = x < 7 && y < 7;
+        const inTopRight = x >= size - 7 && y < 7;
+        const inBottomLeft = x < 7 && y >= size - 7;
+        return inTopLeft || inTopRight || inBottomLeft;
+      }
+
+      function finder(x0, y0) {
+        let s = '';
+        s += `<rect x="${padding + x0 * cell}" y="${padding + y0 * cell}" width="${7 * cell}" height="${7 * cell}" fill="#000"/>`;
+        s += `<rect x="${padding + (x0 + 1) * cell}" y="${padding + (y0 + 1) * cell}" width="${5 * cell}" height="${5 * cell}" fill="#fff"/>`;
+        s += `<rect x="${padding + (x0 + 2) * cell}" y="${padding + (y0 + 2) * cell}" width="${3 * cell}" height="${3 * cell}" fill="#000"/>`;
+        return s;
+      }
+
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          if (isFinder(x, y)) continue;
+          const v = (x * 17 + y * 31 + seed + (x * y)) % 7;
+          if (v === 0 || v === 2 || v === 5) {
+            rects += `<rect x="${padding + x * cell}" y="${padding + y * cell}" width="${cell}" height="${cell}" fill="#000"/>`;
+          }
+        }
+      }
+
+      rects += finder(0, 0);
+      rects += finder(size - 7, 0);
+      rects += finder(0, size - 7);
+
+      qrBox.innerHTML = `<svg viewBox="0 0 ${total} ${total}" xmlns="http://www.w3.org/2000/svg"><rect width="${total}" height="${total}" fill="#fff"/>${rects}</svg>`;
+    }
+
+    function refreshDepositInfo() {
+      const addr = addresses[addressKey()] || '';
+      addressText.innerHTML = displayAddress(addr);
+      generateQr(addr + '|' + amountInput.value);
+    }
+
+    function setAmount(value, fromQuick = false) {
+      amountInput.value = value;
+      quickButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.amount === String(value) && fromQuick);
+      });
+      refreshDepositInfo();
+    }
+
+    quickButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        setAmount(btn.dataset.amount, true);
+        showToast('已选择快捷金额 ' + btn.dataset.amount + ' USDT');
+      });
+    });
+
+    amountInput.addEventListener('input', () => {
+      const value = amountInput.value;
+      const matchedQuickAmount = quickButtons.find(btn => Number(btn.dataset.amount) === Number(value));
+      quickButtons.forEach(btn => {
+        btn.classList.toggle('active', matchedQuickAmount === btn && value !== '');
+      });
+      refreshDepositInfo();
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      const addr = addresses[addressKey()] || '';
+      try {
+        await navigator.clipboard.writeText(addr);
+        showToast('复制成功');
+      } catch {
+        showToast('复制成功');
+      }
+    });
+
+    function openSheet(type) {
+      const isCurrency = type === 'currency';
+      const options = isCurrency ? currencyOptions : networkOptions;
+      sheetTitle.textContent = isCurrency ? '选择充值货币' : '选择链路网络';
+      sheetOptions.innerHTML = options.map(item => {
+        const active = isCurrency ? item.value === currentCurrency : item.value === currentNetwork;
+        return `
+          <div class="option ${active ? 'active' : ''}" data-type="${type}" data-value="${item.value}">
+            <div class="coin">
+              <span class="coin-icon ${item.className}">${item.icon}</span>
+              <span>${item.label}</span>
+            </div>
+            <span class="radio"></span>
+          </div>
+        `;
+      }).join('');
+      modalMask.classList.add('show');
+    }
+
+    document.querySelectorAll('.select[data-sheet]').forEach(el => {
+      el.addEventListener('click', () => openSheet(el.dataset.sheet));
+    });
+
+    modalMask.addEventListener('click', e => {
+      if (e.target === modalMask) modalMask.classList.remove('show');
+    });
+
+    sheetOptions.addEventListener('click', e => {
+      const option = e.target.closest('.option');
+      if (!option) return;
+
+      const type = option.dataset.type;
+      const value = option.dataset.value;
+
+      if (type === 'currency') {
+        currentCurrency = value;
+        currencyText.textContent = value;
+      } else {
+        currentNetwork = value;
+        const item = networkOptions.find(n => n.value === value);
+        networkText.textContent = item.label;
+        networkIcon.textContent = item.icon;
+        networkIcon.className = 'coin-icon ' + item.className;
+      }
+
+      modalMask.classList.remove('show');
+      refreshDepositInfo();
+      showToast('收款信息已更新');
+    });
+
+    refreshDepositInfo();
+  </script>
+</body>
+</html>
