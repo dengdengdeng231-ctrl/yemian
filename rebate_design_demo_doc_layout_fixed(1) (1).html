@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>实收返水功能设计稿</title>
+  <style>
+    :root{
+      --bg:#f3f6fa;
+      --card:#ffffff;
+      --text:#263f56;
+      --sub:#6d8291;
+      --muted:#aab6bf;
+      --line:#e5ebf1;
+      --soft:#f1f3f7;
+      --soft2:#e9eef6;
+      --blue:#3995ff;
+      --yellow:#ffbc00;
+      --shadow:0 10px 25px rgba(33,51,75,.04);
+      --radius:22px;
+      --pcWidth:1720px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif;background:#e9edf3;color:var(--text)}
+    button,input,select{font-family:inherit}
+    .top-switch{position:fixed;right:24px;bottom:24px;z-index:1000;display:flex;gap:8px;background:#fff;padding:8px;border:1px solid var(--line);border-radius:999px;box-shadow:0 10px 35px rgba(21,39,61,.15)}
+    .top-switch button{border:0;background:#edf2f8;color:#596d7d;height:34px;padding:0 18px;border-radius:999px;font-size:14px;font-weight:700;cursor:pointer}
+    .top-switch button.active{background:var(--blue);color:#fff}
+    .page{display:none;min-height:100vh}
+    .page.active{display:block}
+
+    /* H5 */
+    .mobile-wrap{width:375px;min-height:812px;margin:24px auto;background:var(--bg);overflow:hidden;position:relative;box-shadow:0 18px 60px rgba(0,0,0,.12)}
+    .statusbar{height:32px;padding:10px 24px 0 33px;display:flex;align-items:center;justify-content:space-between;font-size:16px;font-weight:500;color:#263f56;background:#fff}
+    .status-icons{display:flex;gap:6px;align-items:center}.signal{display:flex;gap:2px;align-items:end;height:12px}.signal i{display:block;width:3px;background:#263f56;border-radius:2px}.signal i:nth-child(1){height:5px}.signal i:nth-child(2){height:7px}.signal i:nth-child(3){height:10px}.signal i:nth-child(4){height:12px}.wifi{width:18px;height:13px;position:relative}.wifi:before,.wifi:after{content:"";position:absolute;left:0;right:0;margin:auto;border:3px solid #263f56;border-color:#263f56 transparent transparent transparent;border-radius:50%}.wifi:before{width:18px;height:18px;top:0}.wifi:after{width:9px;height:9px;top:6px}.battery{width:26px;height:13px;border:2px solid #a5b3bf;border-radius:4px;position:relative}.battery:before{content:"";position:absolute;right:-4px;top:3px;width:2px;height:5px;background:#a5b3bf;border-radius:0 2px 2px 0}.battery:after{content:"";position:absolute;left:2px;top:2px;width:18px;height:5px;background:#263f56;border-radius:2px}
+    .m-header{height:100px;background:#fff;position:relative;display:flex;align-items:center;justify-content:center;padding-top:28px}.m-header .back{position:absolute;left:12px;top:46px;width:28px;height:28px;border-radius:8px;background:#f1f3f7;display:flex;align-items:center;justify-content:center}.m-header .back:before{content:"";width:9px;height:9px;border-left:2px solid #263f56;border-bottom:2px solid #263f56;transform:rotate(45deg);margin-left:4px}.m-title{font-size:18px;font-weight:800;color:#263f56}.m-tz{position:absolute;right:15px;top:62px;font-size:12px;color:#9daab5;font-weight:700}.m-tabs{height:44px;background:#fff;display:flex;align-items:end;justify-content:space-around;border-bottom:1px solid #edf1f5}.m-tabs .tab{height:37px;padding:0 4px;display:flex;align-items:center;position:relative;font-size:14px;font-weight:700;color:#a0afba;white-space:nowrap}.m-tabs .tab.active{color:#263f56}.m-tabs .tab.active:after{content:"";position:absolute;height:3px;background:var(--blue);left:4px;right:4px;bottom:0;border-radius:3px 3px 0 0}
+    .m-content{padding:12px 13px 34px;background:var(--bg);min-height:636px}.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px;padding-right:8px}.chips::-webkit-scrollbar{display:none}.chip{min-width:62px;height:28px;border:0;border-radius:999px;background:#e6edf6;color:#647887;font-size:13px;font-weight:800;padding:0 14px;white-space:nowrap;cursor:pointer}.chip.active{background:var(--blue);color:#fff}.chip[data-filter="custom"]{min-width:76px}.m-card{background:#fff;border-radius:13px;padding:16px 12px 12px;box-shadow:var(--shadow)}.m-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.m-label{font-size:14px;font-weight:800;color:#647887;display:flex;gap:8px;align-items:center}.m-label .q{width:16px;height:16px;border-radius:50%;border:1px solid #a7b6c0;color:#9aacb7;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}.ratio-link{font-size:12px;font-weight:800;color:var(--blue);display:flex;gap:4px;align-items:center}.arrow-right{width:7px;height:7px;border-right:2px solid currentColor;border-top:2px solid currentColor;transform:rotate(45deg);display:inline-block}.m-money{font-size:32px;line-height:1.2;color:#263f56;font-weight:800;letter-spacing:.2px;margin:0 0 18px}.m-table-wrap{border:1px solid #e2e9f0;border-radius:12px;padding:12px;background:#fff}.m-table{width:100%;border-collapse:separate;border-spacing:0}.m-table th{height:32px;background:#f1f3f7;color:#6d8291;font-size:13px;text-align:left;font-weight:800}.m-table th:first-child{border-radius:8px 0 0 8px;padding-left:8px}.m-table th:nth-child(2),.m-table td:nth-child(2){text-align:center}.m-table th:last-child{border-radius:0 8px 8px 0;text-align:right;padding-right:8px}.m-table td{height:40px;color:#647887;font-size:13px;font-weight:700;border-bottom:0}.m-table td:first-child{padding-left:8px;max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.m-table td:last-child{text-align:right;padding-right:8px}.row-arrow{color:#a8b5bd;margin-left:4px;width:8px;height:8px;border-right:2px solid currentColor;border-top:2px solid currentColor;transform:rotate(45deg);display:inline-block}.empty-line{height:1px;background:#edf1f5;margin:2px 0 22px}.empty-box{cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;padding:2px 0 12px}.empty-illus{width:170px;height:120px;margin-bottom:8px;position:relative;opacity:.95}.paper{position:absolute;left:50px;top:12px;width:76px;height:88px;background:linear-gradient(180deg,#fff,#f4f4f4);border:4px solid #d8d8d8;border-radius:14px;box-shadow:inset 0 -18px 16px rgba(0,0,0,.06);transform:rotate(6deg)}.paper:before{content:"";position:absolute;left:14px;top:26px;width:44px;height:6px;background:#c6c6c6;border-radius:8px;box-shadow:0 18px 0 #eeeeee,0 36px 0 #eeeeee}.paper i{position:absolute;left:10px;top:23px;width:10px;height:10px;border-radius:50%;background:#eee;box-shadow:0 18px 0 #f7f7f7,0 36px 0 #f7f7f7}.ball{position:absolute;left:20px;top:54px;width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#fff,#ddd);border:2px solid #d5d5d5}.coin{position:absolute;left:44px;top:84px;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#fff,#d6d6d6);border:3px solid #dedede}.chipimg{position:absolute;right:32px;top:48px;width:42px;height:42px;border-radius:50%;background:radial-gradient(circle,#ccc 0,#ccc 42%,#fff 43%,#fff 60%,#d5d5d5 61%);border:2px solid #d5d5d5}.big-arr{position:absolute;right:20px;top:70px;width:86px;height:36px;background:#fff;border-radius:0 18px 18px 0;filter:drop-shadow(0 4px 4px rgba(0,0,0,.08));transform:rotate(-8deg)}.big-arr:after{content:"";position:absolute;right:-14px;top:-13px;border-left:32px solid #fff;border-top:32px solid transparent;border-bottom:32px solid transparent}.empty-title{font-size:15px;font-weight:900;color:#263f56;margin:0 0 14px}.empty-cta{font-size:14px;font-weight:800;color:#687d8c;display:flex;align-items:center;gap:10px}.m-detail .m-header{height:108px}.m-detail .m-header.no-tabs{height:102px}.m-detail .m-content{padding-top:0}.m-detail .chips{padding-top:8px}.date-group{border:1px solid #e2e9f0;border-radius:11px;padding:12px;margin-bottom:14px;background:#fff}.date-title{font-size:15px;font-weight:800;color:#263f56;margin-bottom:12px}.date-group .m-table-wrap{border:0;padding:0}.date-group .m-table td{height:38px}.hide{display:none!important}
+
+    /* PC */
+    .pc-wrap{width:100%;min-width:1100px;min-height:100vh;background:#f2f4f8;position:relative}.pc-top{height:48px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 34px 0 38px;border-bottom:1px solid #eef1f5}.logo{font-size:26px;font-weight:900;color:#151515;display:flex;align-items:center;gap:8px}.logo-mark{width:24px;height:24px;border-radius:50%;background:#e93632;position:relative}.logo-mark:after{content:"";position:absolute;width:10px;height:10px;border-radius:50%;background:#fff;left:8px;top:7px}.pc-actions{display:flex;align-items:center;gap:12px}.search{width:36px;height:36px;border-radius:8px;background:#f5f6f8;position:relative;border:1px solid #e7ebf0}.search:before{content:"";position:absolute;left:10px;top:9px;width:11px;height:11px;border:2px solid #777;border-radius:50%}.search:after{content:"";position:absolute;left:22px;top:22px;width:8px;height:2px;background:#777;transform:rotate(45deg);border-radius:2px}.balance{height:36px;min-width:210px;border:1px solid #ece2b9;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 4px 0 12px;font-size:14px;font-weight:800}.coin-green{width:22px;height:22px;background:#0db287;border-radius:50%;color:#fff;display:inline-flex;align-items:center;justify-content:center;margin-right:8px;font-size:12px}.charge{height:28px;background:linear-gradient(#ffd65c,#ffb500);border:1px solid #d79b00;border-radius:6px;padding:0 18px;font-weight:900;color:#3c2b00}.bell{font-size:22px;color:#d2a000}.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#f7dfd8,#becce5);border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+    .pc-sidebar{position:absolute;top:48px;bottom:0;left:0;width:223px;background:#fff;padding:10px;border-right:1px solid #edf1f5;overflow:hidden}.side-section{background:#f4f5f7;border-radius:8px;margin-bottom:8px;padding:8px}.side-item{height:34px;border-radius:7px;display:flex;align-items:center;gap:8px;padding:0 8px;color:#333;font-size:13px;font-weight:700}.side-item.active,.side-item:hover{background:#e8ebef}.emoji{width:20px;text-align:center}.promo{height:82px;border-radius:8px;background:linear-gradient(135deg,#08bd50,#0aa846);margin-top:8px;color:#fff;padding:8px;font-weight:900;position:relative}.promo:after{content:"U";position:absolute;right:20px;bottom:8px;width:45px;height:45px;background:#6e43ff;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#ffd764;font-size:32px;box-shadow:0 7px 12px rgba(0,0,0,.22)}
+    .pc-main{margin-left:223px;padding:64px 0 80px 210px}.pc-layout{display:flex;gap:14px}.wallet-menu{width:215px;height:190px;background:#fff;border-radius:13px;padding:18px 8px}.wallet-title{position:absolute;top:66px;left:430px;font-size:28px;font-weight:900;color:#141414}.wallet-menu .w-item{height:42px;border-radius:9px;display:flex;align-items:center;gap:10px;padding-left:18px;color:#9c9c9c;font-size:14px;font-weight:800}.wallet-menu .w-item.active{background:#f0f1f4;color:#111}.pc-card{width:860px;background:#fff;border-radius:14px;padding:28px 30px;box-shadow:var(--shadow)}.pc-tabs{display:flex;border-bottom:1px solid #ededed;margin-bottom:18px;height:34px}.pc-tabs .tab{font-size:15px;font-weight:800;color:#8b8b8b;margin-right:76px;position:relative}.pc-tabs .tab.active{color:#151515}.pc-tabs .tab.active:after{content:"";position:absolute;height:3px;background:var(--yellow);left:0;right:0;bottom:-1px;border-radius:3px}.pc-filters{display:flex;gap:8px;margin-bottom:22px}.pc-filter{height:36px;min-width:82px;border:1px solid #e5e8ed;background:#f4f5f8;border-radius:7px;color:#3f3f3f;font-size:14px;font-weight:800;cursor:pointer}.pc-filter.active{background:var(--yellow);border-color:var(--yellow);color:#171717}.pc-select{height:36px;width:260px;border:1px solid #e5e8ed;background:#f4f5f8;border-radius:7px;margin-left:auto;color:#333;font-size:14px;font-weight:800;padding:0 14px}.pc-summary{border:1px solid #ececec;border-radius:12px;padding:18px 12px 12px}.pc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.pc-label{font-size:14px;color:#5f7585;font-weight:800;display:flex;gap:8px;align-items:center}.pc-label .q{width:14px;height:14px;border:1px solid #acb5bc;border-radius:50%;color:#acb5bc;font-size:10px;display:inline-flex;align-items:center;justify-content:center}.pc-link{font-size:13px;font-weight:800;color:#e8a600;display:flex;gap:5px;align-items:center}.pc-money{font-size:26px;line-height:1.2;font-weight:900;color:#263f56;margin:0 0 22px}.pc-table{width:100%;border-collapse:separate;border-spacing:0}.pc-table th{height:38px;background:#f4f4f6;color:#5f7585;font-size:13px;text-align:left;font-weight:800}.pc-table th:first-child{border-radius:6px 0 0 6px;padding-left:18px}.pc-table th:nth-child(2),.pc-table td:nth-child(2){text-align:center}.pc-table th:last-child{border-radius:0 6px 6px 0;text-align:right;padding-right:20px}.pc-table td{height:42px;color:#3f3f3f;font-size:14px;font-weight:500}.pc-table td:first-child{padding-left:18px}.pc-table td:last-child{text-align:right;padding-right:20px}.clickable-row{cursor:pointer}.clickable-row:hover td{background:#fafcff}.pc-overlay{position:fixed;inset:0;background:rgba(0,0,0,.05);display:none;align-items:center;justify-content:center;z-index:100}.pc-overlay.show{display:flex}.pc-modal{width:1056px;max-height:86vh;overflow:hidden;background:#fff;border-radius:36px;padding:34px 36px;box-shadow:0 0 0 10px rgba(255,255,255,.28),0 20px 60px rgba(0,0,0,.3);position:relative}.pc-modal-title{text-align:center;font-size:26px;font-weight:900;color:#111;margin-bottom:34px}.pc-close{position:absolute;right:34px;top:28px;border:0;background:none;font-size:42px;line-height:1;color:#555;cursor:pointer}.modal-filters{display:flex;gap:14px;overflow-x:auto;overflow-y:hidden;margin-bottom:14px;scrollbar-width:none}.modal-filters::-webkit-scrollbar{display:none}.modal-filters .pc-filter{height:66px;min-width:160px;border-radius:35px;font-size:24px}.pc-modal-body{border:1px solid #e4e8ec;border-radius:16px;padding:28px 22px;max-height:620px;overflow:auto}.pc-modal-body .pc-label{font-size:24px}.pc-modal-body .pc-money{font-size:52px;margin-top:28px}.modal-date-group{border:1px solid #e2e9f0;border-radius:14px;padding:20px;margin-bottom:22px}.modal-date-title{font-size:26px;font-weight:800;color:#263f56;margin-bottom:24px}.modal-date-group .pc-table th{height:56px;font-size:22px}.modal-date-group .pc-table td{height:78px;font-size:22px;color:#647887}.modal-date-group .pc-table th:first-child,.modal-date-group .pc-table td:first-child{padding-left:16px}.pc-empty-divider{height:1px;background:#edf1f5;margin:28px 0}.pc-empty-box{cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 0 0}.pc-empty-box .empty-illus{transform:scale(1.3);margin:20px 0 30px}.pc-empty-title{font-size:28px;color:#263f56;font-weight:900;margin-bottom:24px}.pc-empty-cta{font-size:24px;color:#647887;font-weight:800;display:flex;gap:16px;align-items:center}.pc-empty-cta .arrow-right{width:12px;height:12px;border-width:3px}.pc-note{position:absolute;left:250px;bottom:22px;color:#9aa6b1;font-size:12px}.custom-bar{display:none;margin-bottom:12px;background:#f6f8fb;border:1px solid #e3e9f0;border-radius:12px;padding:10px 12px;color:#647887;font-weight:800;font-size:13px}.custom-bar.show{display:block}.custom-bar input{width:120px;height:30px;border:1px solid #dae3ec;border-radius:8px;background:#fff;padding:0 8px;color:#34495e;font-weight:700}.custom-bar button{height:30px;border:0;border-radius:8px;background:var(--blue);color:#fff;font-weight:800;padding:0 12px}.pc-custom-bar{display:none;margin-top:-8px;margin-bottom:14px;background:#fafbfc;border:1px solid #e5e8ed;border-radius:8px;padding:10px 14px;font-size:13px;color:#666;font-weight:700}.pc-custom-bar.show{display:block}.pc-custom-bar input{height:30px;border:1px solid #ddd;border-radius:6px;margin:0 8px;padding:0 8px}.pc-custom-bar button{height:30px;background:var(--yellow);border:0;border-radius:6px;font-weight:900;padding:0 14px}
+    @media(max-width:900px){.pc-wrap{display:none}.mobile-wrap{margin:0 auto;width:100%;max-width:430px;min-height:100vh}.top-switch{right:12px;bottom:12px}.top-switch button{padding:0 12px}.mobile-wrap .statusbar,.m-header,.m-tabs{background:#fff}.m-content{min-height:calc(100vh - 176px)}}
+
+
+    /* Requirement document panel */
+    .req-panel{
+      position:fixed;
+      right:24px;
+      top:92px;
+      bottom:64px;
+      width:430px;
+      z-index:600;
+      background:#fff;
+      border:1px solid #e5ebf1;
+      border-radius:18px;
+      box-shadow:0 18px 55px rgba(31,48,70,.14);
+      overflow:hidden;
+      color:#263f56;
+    }
+    .req-panel-head{
+      height:58px;
+      display:flex;
+      align-items:center;
+      padding:0 22px;
+      border-bottom:1px solid #edf1f5;
+      background:#fff;
+      position:sticky;
+      top:0;
+      z-index:2;
+    }
+    .req-title{
+      font-size:18px;
+      line-height:1.3;
+      font-weight:900;
+      margin:0;
+      color:#1f354b;
+    }
+    .req-body{
+      height:calc(100% - 58px);
+      overflow:auto;
+      padding:22px 22px 28px;
+    }
+    .req-body::-webkit-scrollbar{width:6px}
+    .req-body::-webkit-scrollbar-thumb{background:#cfd8e3;border-radius:10px}
+    .req-body::-webkit-scrollbar-track{background:transparent}
+    .req-section{margin:0 0 22px}
+    .req-section h2{
+      font-size:16px;
+      font-weight:900;
+      margin:0 0 12px;
+      color:#263f56;
+    }
+    .req-section h3{
+      font-size:14px;
+      font-weight:900;
+      margin:14px 0 8px;
+      color:#263f56;
+    }
+    .req-section p{
+      margin:0 0 8px;
+      font-size:13px;
+      line-height:1.8;
+      color:#607584;
+    }
+    .req-section ul,.req-section ol{
+      margin:0;
+      padding-left:18px;
+    }
+    .req-section li{
+      font-size:13px;
+      line-height:1.8;
+      color:#607584;
+      margin:4px 0;
+    }
+    .req-section strong{color:#263f56;font-weight:900}
+    .req-table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:10px;
+      font-size:12px;
+      border:1px solid #e6edf3;
+      background:#fff;
+    }
+    .req-table th,.req-table td{
+      padding:10px 9px;
+      text-align:left;
+      border-right:1px solid #e6edf3;
+      border-bottom:1px solid #e6edf3;
+      color:#607584;
+      vertical-align:top;
+    }
+    .req-table th:last-child,.req-table td:last-child{border-right:0}
+    .req-table tr:last-child td{border-bottom:0}
+    .req-table th{
+      background:#f3f6fa;
+      color:#263f56;
+      font-weight:900;
+    }
+    .req-tag{
+      display:inline-flex;
+      align-items:center;
+      height:22px;
+      padding:0 8px;
+      border-radius:999px;
+      background:#f1f5f9;
+      color:#607584;
+      font-size:12px;
+      font-weight:800;
+      margin:0 4px 4px 0;
+    }
+    .req-note{
+      padding:10px 12px;
+      background:#fff8e8;
+      border:1px solid #ffe4ad;
+      border-radius:10px;
+      color:#6f4b00;
+      font-size:13px;
+      line-height:1.7;
+      margin-top:8px;
+    }
+    .req-status{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    @media(max-width:1180px){.req-panel{position:static;width:calc(100% - 32px);height:auto;max-height:none;margin:16px auto 100px}.req-body{height:auto;max-height:none}.top-switch{right:16px}.mobile-wrap{margin-top:16px}}
+
+    /* Optimized desktop demo layout: left preview + right requirement document */
+    @media(min-width:1181px){
+      body{
+        min-width:1280px;
+        background:#e9edf3;
+      }
+      .top-switch{
+        right:500px;
+        bottom:28px;
+        z-index:1200;
+      }
+      .mobile-wrap{
+        margin-top:28px;
+        margin-bottom:28px;
+        margin-left:calc((100vw - 430px - 92px - 375px)/2);
+        margin-right:0;
+      }
+      #pcPage.active{
+        width:calc(100vw - 500px);
+        overflow:hidden;
+      }
+      #pcPage .pc-wrap{
+        width:calc(100vw - 500px);
+        min-width:1120px;
+        overflow:hidden;
+      }
+      .req-panel{
+        right:28px;
+        top:116px;
+        bottom:42px;
+        width:430px;
+        border-radius:16px;
+        border:1px solid #edf1f5;
+        background:#fff;
+        box-shadow:0 18px 60px rgba(33,51,75,.14);
+      }
+      .req-panel-head{
+        height:62px;
+        padding:0 22px;
+        border-bottom:1px solid #edf1f5;
+      }
+      .req-title{
+        font-size:20px;
+        font-weight:900;
+      }
+      .req-body{
+        height:calc(100% - 62px);
+        padding:28px 22px 32px;
+      }
+      .req-section{
+        margin-bottom:26px;
+      }
+      .req-section h2{
+        font-size:16px;
+        margin-bottom:14px;
+      }
+      .req-section h3{
+        font-size:14px;
+        margin:14px 0 8px;
+      }
+      .req-section p,
+      .req-section li{
+        font-size:13px;
+        line-height:1.9;
+      }
+      .req-table th,.req-table td{
+        padding:10px 9px;
+        font-size:12px;
+        line-height:1.65;
+      }
+    }
+
+
+    /* Final layout: match venue profit demo layout (left preview + right document) */
+    @media(min-width:1181px){
+      body{background:#e9edf3; overflow:hidden; min-width:1280px;}
+      .page{min-height:100vh;}
+      #mobilePage.active{
+        display:flex;
+        width:calc(100vw - 500px);
+        min-height:100vh;
+        align-items:flex-start;
+        justify-content:center;
+        padding-top:28px;
+        overflow:hidden;
+      }
+      #mobilePage.active .mobile-wrap{margin:0; flex:0 0 auto;}
+      #pcPage.active{
+        display:block;
+        width:calc(100vw - 500px);
+        height:100vh;
+        min-height:100vh;
+        overflow:hidden;
+        position:relative;
+      }
+      #pcPage .pc-wrap{
+        position:absolute;
+        top:26px;
+        left:24px;
+        width:1540px;
+        min-width:1540px;
+        height:860px;
+        min-height:860px;
+        overflow:hidden;
+        border-radius:18px;
+        transform-origin:top left;
+        box-shadow:0 18px 60px rgba(31,48,70,.10);
+        background:#f2f4f8;
+      }
+      #pcPage .pc-main{margin-left:223px; padding:64px 0 80px 150px;}
+      #pcPage .wallet-title{left:373px;}
+      #pcPage .pc-card{width:860px;}
+      #pcPage .pc-overlay{position:absolute; inset:0;}
+      #pcPage .pc-modal{transform:scale(.72); transform-origin:center center;}
+      .req-panel{
+        position:fixed;
+        right:24px;
+        top:26px;
+        bottom:26px;
+        width:430px;
+        z-index:700;
+        border-radius:18px;
+        border:1px solid #edf1f5;
+        box-shadow:0 18px 60px rgba(31,48,70,.14);
+        background:#fff;
+      }
+      .req-panel-head{height:62px; padding:0 22px;}
+      .req-title{font-size:20px; font-weight:900;}
+      .req-body{height:calc(100% - 62px); padding:28px 22px 32px;}
+      .req-section{margin-bottom:26px;}
+      .req-section h2{font-size:16px; margin-bottom:14px;}
+      .req-section p,.req-section li{font-size:13px; line-height:1.9;}
+      .top-switch{
+        right:calc(430px + 48px);
+        bottom:28px;
+        z-index:1200;
+      }
+    }
+
+
+  </style>
+</head>
+<body>
+  <div class="top-switch">
+    <button id="btnMobile" class="active">H5</button>
+    <button id="btnPc">PC</button>
+  </div>
+
+
+
+  <aside class="req-panel" aria-label="实收返水需求文档">
+    <div class="req-panel-head">
+      <h1 class="req-title">实收返水需求文档</h1>
+    </div>
+    <div class="req-body">
+      <section class="req-section">
+        <h2>一、需求背景</h2>
+        <p>在「我的数据」中优化「实收返水」模块展示方式，用户可按时间查看各游戏类型的实收返水数据，并进入单个游戏类型查看统计和明细。</p>
+        <div class="req-note"><strong>重要说明：</strong>原有计算逻辑不变，继续沿用现有返水金额、打码总量、返水比例、返水结算、到账判断等统计口径。本次仅调整页面展示与交互。</div>
+      </section>
+
+      <section class="req-section">
+        <h2>二、功能入口</h2>
+        <h3>H5端</h3>
+        <p>入口：我的数据 &gt; 实收返水。详情为独立页面展示。</p>
+        <h3>PC端</h3>
+        <p>入口：钱包 &gt; 我的数据 &gt; 实收返水。详情为弹窗展示。</p>
+      </section>
+
+      <section class="req-section">
+        <h2>三、默认查询条件</h2>
+        <ul>
+          <li>列表页默认查询条件：今日。</li>
+          <li>首次进入 H5 / PC 实收返水页面时，默认展示今日数据。</li>
+          <li>进入详情页 / 详情弹窗时，不重新固定默认今日，需要带入列表页当前已选中的查询条件。</li>
+          <li>例如：列表页选中“昨日”后点击真人详情，真人详情页默认也选中“昨日”；进入后用户可在详情页自行切换其他时间条件。</li>
+        </ul>
+      </section>
+
+      <section class="req-section">
+        <h2>四、时间筛选</h2>
+        <p>支持：全部、今日、昨日、本周、本月、上月、自定义。</p>
+        <ul>
+          <li>点击列表页时间条件后，列表数据同步刷新。</li>
+          <li>从列表进入详情时，详情页时间条件需继承列表当前查询条件。</li>
+          <li>进入详情后，用户可在详情页单独切换时间条件，切换后只刷新当前详情数据，不反向影响列表页已选条件。</li>
+          <li>H5 时间条支持横向滑动。</li>
+          <li>PC 详情弹窗时间条支持横向滚动。</li>
+          <li>自定义日期确认后，按选择日期范围刷新数据。</li>
+        </ul>
+      </section>
+
+      <section class="req-section">
+        <h2>五、实收返水列表</h2>
+        <p>列表页展示全部游戏类型，即使当前查询条件下无数据，也需要展示该游戏类型并显示 0。</p>
+        <p>展示游戏类型：</p>
+        <div><span class="req-tag">真人</span><span class="req-tag">体育</span><span class="req-tag">彩票</span><span class="req-tag">电子</span><span class="req-tag">棋牌</span><span class="req-tag">U独家</span></div>
+        <table class="req-table">
+          <thead><tr><th>字段</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>游戏类型</td><td>真人 / 体育 / 彩票 / 电子 / 棋牌 / U独家</td></tr>
+            <tr><td>打码总量</td><td>当前查询条件下该游戏类型的打码总量，沿用原有统计口径</td></tr>
+            <tr><td>返水金额</td><td>当前查询条件下该游戏类型的实收返水金额，沿用原有统计口径</td></tr>
+            <tr><td>详情入口</td><td>点击对应行右侧详情按钮，进入该游戏类型详情页 / 弹窗，并带入列表页当前查询条件</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="req-section">
+        <h2>六、实收返水详情</h2>
+        <ul>
+          <li>点击列表中相对应的详情按钮后，进入对应游戏类型详情。</li>
+          <li>详情页查询条件需带入列表页当前查询条件，不能进入详情后统一重置为今日。</li>
+          <li>详情页进入后支持用户自行切换时间查询条件，切换后刷新当前详情数据。</li>
+          <li>详情页标题展示当前游戏类型，例如：真人。</li>
+          <li>详情页顶部展示当前游戏类型总返水金额，例如：真人总返水金额（USDT）。</li>
+          <li>有数据时正常显示明细数据。</li>
+          <li>多天查询时，明细按日期分组展示。</li>
+          <li>详情页展示逻辑与场馆盈亏详情保持一致。</li>
+        </ul>
+        <table class="req-table">
+          <thead><tr><th>字段</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>日期</td><td>多天查询时展示，按日期分组</td></tr>
+            <tr><td>游戏类型</td><td>展示该分类下的具体场馆 / 游戏名称</td></tr>
+            <tr><td>打码总量</td><td>当前行对应场馆 / 游戏的打码总量</td></tr>
+            <tr><td>返水金额</td><td>当前行对应场馆 / 游戏的实收返水金额</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="req-section">
+        <h2>七、缺省页规则</h2>
+        <ul>
+          <li>详情页在当前查询条件下无数据时，展示缺省页。</li>
+          <li>缺省页文案和视觉样式沿用当前设计图。</li>
+          <li>点击缺省页模块，跳转进入 U 体育页面。</li>
+          <li>列表页不因无数据隐藏游戏类型；列表页字段显示 0。</li>
+        </ul>
+      </section>
+
+      <section class="req-section">
+        <h2>八、计算逻辑说明</h2>
+        <ul>
+          <li>实收返水金额：沿用原有计算逻辑。</li>
+          <li>打码总量：沿用原有统计逻辑。</li>
+          <li>返水比例、返水到账、返水结算周期：均不在本次变更范围内。</li>
+          <li>本次变更不影响后台配置、不影响实际派发和结算。</li>
+        </ul>
+      </section>
+
+      <section class="req-section">
+        <h2>九、验收标准</h2>
+        <ul>
+          <li>进入实收返水页面时，默认选中今日。</li>
+          <li>全部游戏类型均展示，0 数据不隐藏。</li>
+          <li>点击任一游戏类型详情入口，可进入对应详情页 / 弹窗。</li>
+          <li>详情页默认选中的时间条件与列表页进入前选中的时间条件一致。</li>
+          <li>详情页内切换时间条件后，只刷新详情页数据，不影响列表页查询条件。</li>
+          <li>详情页有数据时正常展示明细。</li>
+          <li>详情页无数据时展示缺省页。</li>
+          <li>点击缺省页模块可跳转 U 体育页面。</li>
+          <li>返水金额、打码总量等数据与原逻辑保持一致。</li>
+        </ul>
+      </section>
+
+      <div class="req-status">
+        <span class="req-tag">H5</span><span class="req-tag">PC</span><span class="req-tag">展示样式变更</span><span class="req-tag">计算逻辑不变</span>
+      </div>
+    </div>
+  </aside>
+
+
+  <section id="mobilePage" class="page active">
+    <div class="mobile-wrap" id="mobileList">
+      <div class="statusbar"><span>9:41</span><div class="status-icons"><div class="signal"><i></i><i></i><i></i><i></i></div><div class="wifi"></div><div class="battery"></div></div></div>
+      <div class="m-header">
+        <div class="back"></div><div class="m-title">我的数据</div><div class="m-tz">时区UTC−4</div>
+      </div>
+      <div class="m-tabs"><div class="tab">游戏注单</div><div class="tab">总盈亏</div><div class="tab">场馆盈亏</div><div class="tab active">实收返水</div></div>
+      <div class="m-content">
+        <div class="chips" data-scope="mobile-list">
+          <button class="chip" data-filter="all">全部</button><button class="chip active" data-filter="today">今日</button><button class="chip" data-filter="yesterday">昨日</button><button class="chip" data-filter="week">本周</button><button class="chip" data-filter="month">本月</button><button class="chip" data-filter="lastMonth">上月</button><button class="chip" data-filter="custom">自定义</button>
+        </div>
+        <div class="custom-bar" id="mCustomList">自定义时间：<input type="text" value="05-12"> 至 <input type="text" value="05-14"> <button>查询</button></div>
+        <div class="m-card">
+          <div class="m-card-head">
+            <div class="m-label">总返水金额（USDT）<span class="q">?</span></div>
+            <div class="ratio-link">返水比例详情 <i class="arrow-right"></i></div>
+          </div>
+          <div class="m-money" id="mTotal">89,594.31</div>
+          <div id="mListTable" class="m-table-wrap">
+            <table class="m-table">
+              <thead><tr><th>游戏类型</th><th>打码总量</th><th>返水金额</th></tr></thead>
+              <tbody id="mListBody"></tbody>
+            </table>
+          </div>
+          <div id="mListEmpty" class="hide">
+            <div class="empty-line"></div>
+            <div class="empty-box" onclick="goUSport()" title="进入U体育页面">
+              <div class="empty-illus"><div class="ball"></div><div class="paper"><i></i></div><div class="chipimg"></div><div class="coin"></div><div class="big-arr"></div></div>
+              <div class="empty-title">还没有游戏注单数据喔~</div>
+              <div class="empty-cta">前往投注，解锁您的数据记录 <i class="arrow-right"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-wrap m-detail hide" id="mobileDetail">
+      <div class="statusbar"><span>9:41</span><div class="status-icons"><div class="signal"><i></i><i></i><i></i><i></i></div><div class="wifi"></div><div class="battery"></div></div></div>
+      <div class="m-header no-tabs"><div class="back" id="mBackList"></div><div class="m-title" id="mDetailTitle">真人</div></div>
+      <div class="m-content">
+        <div class="chips" data-scope="mobile-detail">
+          <button class="chip" data-filter="all">全部</button><button class="chip active" data-filter="today">今日</button><button class="chip" data-filter="yesterday">昨日</button><button class="chip" data-filter="week">本周</button><button class="chip" data-filter="month">本月</button><button class="chip" data-filter="lastMonth">上月</button><button class="chip" data-filter="custom">自定义</button>
+        </div>
+        <div class="custom-bar" id="mCustomDetail">自定义时间：<input type="text" value="05-12"> 至 <input type="text" value="05-14"> <button>查询</button></div>
+        <div class="m-card">
+          <div class="m-label" id="mDetailLabel">真人总返水金额（USDT）</div>
+          <div class="m-money" id="mDetailTotal">89,594.31</div>
+          <div id="mDetailData"></div>
+          <div id="mDetailEmpty" class="hide">
+            <div class="empty-line"></div>
+            <div class="empty-box" onclick="goUSport()" title="进入U体育页面">
+              <div class="empty-illus"><div class="ball"></div><div class="paper"><i></i></div><div class="chipimg"></div><div class="coin"></div><div class="big-arr"></div></div>
+              <div class="empty-title">还没有游戏注单数据喔~</div>
+              <div class="empty-cta">前往投注，解锁您的数据记录 <i class="arrow-right"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pcPage" class="page">
+    <div class="pc-wrap">
+      <div class="pc-top">
+        <div class="logo"><span class="logo-mark"></span>U.GAME</div>
+        <div class="pc-actions"><div class="search"></div><div class="balance"><span><span class="coin-green">T</span>USDT 1250.00</span><button class="charge">充值</button></div><div class="bell">🔔</div><div class="avatar"></div></div>
+      </div>
+      <aside class="pc-sidebar">
+        <div class="side-section"><div class="side-item active"><span class="emoji">🏅</span>体育</div><div class="side-item"><span class="emoji">🏅</span>GAME</div><div class="side-item"><span class="emoji">🌐</span>SABA</div><div class="side-item"><span class="emoji">🏄</span>熊猫体育</div></div>
+        <div class="side-section"><div class="side-item active"><span class="emoji">🎰</span>娱乐城</div><div class="side-item"><span class="emoji">🏠</span>大厅</div><div class="side-item"><span class="emoji">🔥</span>热门游戏</div><div class="side-item"><span class="emoji">👩</span>真人视讯</div><div class="side-item"><span class="emoji">🐲</span>老虎机</div><div class="side-item"><span class="emoji">🎣</span>捕鱼</div><div class="side-item"><span class="emoji">🎁</span>游戏真人秀</div><div class="side-item"><span class="emoji">🎲</span>哈希游戏</div><div class="side-item"><span class="emoji">🎯</span>百家乐</div><div class="side-item"><span class="emoji">💎</span>轮盘</div><div class="side-item"><span class="emoji">🎮</span>UGame独家</div><div class="side-item"><span class="emoji">🎟️</span>彩票</div><div class="side-item"><span class="emoji">🧡</span>VIP俱乐部</div><div class="side-item"><span class="emoji">🎁</span>奖金</div></div>
+        <div class="side-section"><div class="side-item"><span class="emoji">⚙️</span>全民推广</div></div>
+        <div class="promo">活动中心<br><span style="font-size:20px">促销</span></div>
+      </aside>
+      <main class="pc-main">
+        <div class="wallet-title">钱包</div>
+        <div class="pc-layout">
+          <div class="wallet-menu"><div class="w-item">💳 余额充值</div><div class="w-item">💵 提款</div><div class="w-item">⚙️ 交易</div><div class="w-item active">🕘 我的数据</div></div>
+          <div class="pc-card">
+            <div class="pc-tabs"><div class="tab">游戏注单</div><div class="tab">总盈亏</div><div class="tab">场馆盈亏</div><div class="tab active">实收返水</div></div>
+            <div class="pc-filters" data-scope="pc-list"><button class="pc-filter" data-filter="all">全部</button><button class="pc-filter active" data-filter="today">今日</button><button class="pc-filter" data-filter="yesterday">昨日</button><button class="pc-filter" data-filter="week">本周</button><button class="pc-filter" data-filter="month">本月</button><button class="pc-filter" data-filter="lastMonth">上月</button><select class="pc-select" id="pcCustomSelect"><option>自定义</option><option>05-12 至 05-14</option></select></div>
+            <div class="pc-custom-bar" id="pcCustomList">自定义时间：<input value="2026-05-12">至<input value="2026-05-14"><button>查询</button></div>
+            <div class="pc-summary">
+              <div class="pc-head"><div class="pc-label">总返水金额（USDT）<span class="q">?</span></div><div class="pc-link">返水比例详情 <i class="arrow-right"></i></div></div>
+              <div class="pc-money" id="pcTotal">89,594.31</div>
+              <table class="pc-table"><thead><tr><th>游戏类型</th><th>打码总量</th><th>返水金额</th></tr></thead><tbody id="pcListBody"></tbody></table>
+            </div>
+          </div>
+        </div>
+        <div class="pc-note">注：本稿仅用于确认实收返水的页面结构、数据层级与交互，不改变现有 UI 风格。</div>
+      </main>
+      <div class="pc-overlay" id="pcModal">
+        <div class="pc-modal">
+          <button class="pc-close" id="pcClose">×</button>
+          <div class="pc-modal-title" id="pcDetailTitle">真人</div>
+          <div class="modal-filters" data-scope="pc-detail"><button class="pc-filter" data-filter="all">全部</button><button class="pc-filter active" data-filter="today">今日</button><button class="pc-filter" data-filter="yesterday">昨日</button><button class="pc-filter" data-filter="week">本周</button><button class="pc-filter" data-filter="month">本月</button><button class="pc-filter" data-filter="lastMonth">上月</button><button class="pc-filter" data-filter="custom">自定义</button></div>
+          <div class="pc-custom-bar" id="pcCustomDetail">自定义时间：<input value="2026-05-12">至<input value="2026-05-14"><button>查询</button></div>
+          <div class="pc-modal-body">
+            <div class="pc-label" id="pcDetailLabel">真人总返水金额（USDT）</div>
+            <div class="pc-money" id="pcDetailTotal">89,594.31</div>
+            <div id="pcDetailData"></div>
+            <div id="pcDetailEmpty" class="hide">
+              <div class="pc-empty-divider"></div>
+              <div class="pc-empty-box" onclick="goUSport()" title="进入U体育页面">
+                <div class="empty-illus"><div class="ball"></div><div class="paper"><i></i></div><div class="chipimg"></div><div class="coin"></div><div class="big-arr"></div></div>
+                <div class="pc-empty-title">还没有游戏注单数据喔~</div>
+                <div class="pc-empty-cta">前往投注，解锁您的数据记录 <i class="arrow-right"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<script>
+  const categories = [
+    {name:'真人', code:3216.23, rebate:59.62},
+    {name:'体育', code:3216.23, rebate:59.62},
+    {name:'彩票', code:3216.23, rebate:59.62},
+    {name:'电子', code:3216.23, rebate:59.62},
+    {name:'棋牌', code:3216.23, rebate:0.06},
+    {name:'U独家', code:3216.23, rebate:0.06}
+  ];
+  const detailRows = [
+    {name:'DB视讯', code:3.60, rebate:0.06},
+    {name:'索莱尔七星视讯', code:3.60, rebate:0.06}
+  ];
+  const detailDates = ['05-14','05-13','05-12'];
+  const totals = {today:'89,594.31', all:'89,594.31', yesterday:'0.00', week:'89,594.31', month:'89,594.31', lastMonth:'0.00', custom:'89,594.31'};
+  let currentType = '真人';
+  let mobileListFilter = 'today';
+  let pcListFilter = 'today';
+  let forceEmpty = false;
+
+  const fmt = n => Number(n).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+
+  function renderMobileList(filter='today'){
+    mobileListFilter = filter;
+    document.getElementById('mTotal').textContent = totals[filter] || totals.today;
+    document.getElementById('mCustomList').classList.toggle('show', filter==='custom');
+    const table = document.getElementById('mListTable');
+    const empty = document.getElementById('mListEmpty');
+    table.classList.remove('hide');
+    empty.classList.add('hide');
+    const noData = forceEmpty || filter==='yesterday' || filter==='lastMonth';
+    const tbody = document.getElementById('mListBody'); tbody.innerHTML='';
+    categories.forEach(r=>{
+      const tr = document.createElement('tr'); tr.className='clickable-row'; tr.dataset.type=r.name;
+      const code = noData ? 0 : r.code;
+      const rebate = noData ? 0 : r.rebate;
+      tr.innerHTML = `<td>${r.name}</td><td>${fmt(code)}</td><td>${fmt(rebate)} <i class="row-arrow"></i></td>`;
+      tr.addEventListener('click',()=>openMobileDetail(r.name)); tbody.appendChild(tr);
+    })
+  }
+  function renderDetailTable(target, isPc=false){
+    if(isPc){
+      target.innerHTML = detailDates.map(date=>`<div class="modal-date-group"><div class="modal-date-title">${date}</div><table class="pc-table"><thead><tr><th>游戏类型</th><th>打码总量</th><th>返水金额</th></tr></thead><tbody>${detailRows.map(r=>`<tr><td>${r.name}</td><td>${fmt(r.code)}</td><td>${fmt(r.rebate)}</td></tr>`).join('')}</tbody></table></div>`).join('');
+    }else{
+      target.innerHTML = detailDates.map(date=>`<div class="date-group"><div class="date-title">${date}</div><div class="m-table-wrap"><table class="m-table"><thead><tr><th>游戏类型</th><th>打码总量</th><th>返水金额</th></tr></thead><tbody>${detailRows.map(r=>`<tr><td>${r.name}</td><td>${fmt(r.code)}</td><td>${fmt(r.rebate)}</td></tr>`).join('')}</tbody></table></div></div>`).join('');
+    }
+  }
+  function renderMobileDetail(filter='today'){
+    document.getElementById('mCustomDetail').classList.toggle('show', filter==='custom');
+    document.getElementById('mDetailTitle').textContent = currentType;
+    document.getElementById('mDetailLabel').textContent = `${currentType}总返水金额（USDT）`;
+    document.getElementById('mDetailTotal').textContent = totals[filter] || totals.today;
+    const data = document.getElementById('mDetailData');
+    const empty = document.getElementById('mDetailEmpty');
+    const isEmpty = forceEmpty || filter==='today' || filter==='yesterday' || filter==='lastMonth';
+    data.classList.toggle('hide', isEmpty); empty.classList.toggle('hide', !isEmpty);
+    if(!isEmpty) renderDetailTable(data,false); else data.innerHTML='';
+  }
+  function openMobileDetail(type){ currentType=type; const carriedFilter = mobileListFilter; setActiveFilter('mobile-detail', carriedFilter); document.getElementById('mobileList').classList.add('hide'); document.getElementById('mobileDetail').classList.remove('hide'); renderMobileDetail(carriedFilter); }
+  function backMobile(){ document.getElementById('mobileDetail').classList.add('hide'); document.getElementById('mobileList').classList.remove('hide'); }
+  document.getElementById('mBackList').addEventListener('click',backMobile);
+
+  function renderPcList(filter='today'){
+    pcListFilter = filter;
+    document.getElementById('pcTotal').textContent = totals[filter] || totals.today;
+    document.getElementById('pcCustomList').classList.toggle('show', filter==='custom');
+    const noData = forceEmpty || filter==='yesterday' || filter==='lastMonth';
+    const tbody = document.getElementById('pcListBody'); tbody.innerHTML='';
+    categories.forEach(r=>{
+      const tr = document.createElement('tr'); tr.className='clickable-row'; tr.dataset.type=r.name;
+      const code = noData ? 0 : r.code;
+      const rebate = noData ? 0 : r.rebate;
+      tr.innerHTML = `<td>${r.name}</td><td>${fmt(code)}</td><td>${fmt(rebate)} <i class="row-arrow"></i></td>`;
+      tr.addEventListener('click',()=>openPcDetail(r.name)); tbody.appendChild(tr);
+    });
+  }
+  function renderPcDetail(filter='today'){
+    document.getElementById('pcCustomDetail').classList.toggle('show', filter==='custom');
+    document.getElementById('pcDetailTitle').textContent = currentType;
+    document.getElementById('pcDetailLabel').textContent = `${currentType}总返水金额（USDT）`;
+    document.getElementById('pcDetailTotal').textContent = totals[filter] || totals.today;
+    const data = document.getElementById('pcDetailData');
+    const empty = document.getElementById('pcDetailEmpty');
+    const isEmpty = forceEmpty || filter==='today' || filter==='yesterday' || filter==='lastMonth';
+    data.classList.toggle('hide', isEmpty); empty.classList.toggle('hide', !isEmpty);
+    if(!isEmpty) renderDetailTable(data,true); else data.innerHTML='';
+  }
+  function openPcDetail(type){ currentType=type; const carriedFilter = pcListFilter; setActiveFilter('pc-detail', carriedFilter); document.getElementById('pcModal').classList.add('show'); renderPcDetail(carriedFilter); }
+  document.getElementById('pcClose').addEventListener('click',()=>document.getElementById('pcModal').classList.remove('show'));
+  document.getElementById('pcModal').addEventListener('click',e=>{ if(e.target.id==='pcModal') document.getElementById('pcModal').classList.remove('show'); });
+
+  function getActiveFilter(scope){ const btn=document.querySelector(`[data-scope="${scope}"] .active`); return btn?btn.dataset.filter:'today'; }
+  function setActiveFilter(scope, filter){
+    const group = document.querySelector(`[data-scope="${scope}"]`);
+    if(!group) return;
+    group.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    const target = group.querySelector(`button[data-filter="${filter}"]`) || group.querySelector('button[data-filter="today"]');
+    if(target) target.classList.add('active');
+  }
+  document.querySelectorAll('.chips,.pc-filters,.modal-filters').forEach(group=>{
+    group.addEventListener('click',e=>{
+      const btn=e.target.closest('button'); if(!btn || !btn.dataset.filter) return;
+      group.querySelectorAll('button').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+      const f=btn.dataset.filter, scope=group.dataset.scope;
+      if(scope==='mobile-list') renderMobileList(f);
+      if(scope==='mobile-detail') renderMobileDetail(f);
+      if(scope==='pc-list') renderPcList(f);
+      if(scope==='pc-detail') renderPcDetail(f);
+    });
+  });
+  document.getElementById('pcCustomSelect').addEventListener('change',()=>{
+    const group=document.querySelector('[data-scope="pc-list"]'); group.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+    pcListFilter = 'custom';
+    renderPcList('custom');
+  });
+  document.getElementById('btnMobile').addEventListener('click',()=>{switchView('mobile')});
+  document.getElementById('btnPc').addEventListener('click',()=>{switchView('pc')});
+  function goUSport(){ console.log('进入U体育页面'); }
+  function updatePreviewLayout(){
+    const pcWrap = document.querySelector('#pcPage .pc-wrap');
+    if(!pcWrap) return;
+    if(window.innerWidth < 1181){ pcWrap.style.transform=''; pcWrap.style.left=''; return; }
+    const docW = 430, gap = 72;
+    const availableW = Math.max(640, window.innerWidth - docW - gap);
+    const availableH = Math.max(520, window.innerHeight - 52);
+    const designW = 1540, designH = 860;
+    const scale = Math.min(0.74, availableW / designW, availableH / designH);
+    const left = Math.max(20, (availableW - designW * scale) / 2);
+    pcWrap.style.transform = `scale(${scale})`;
+    pcWrap.style.left = `${left}px`;
+  }
+  function switchView(v){
+    document.getElementById('mobilePage').classList.toggle('active',v==='mobile');
+    document.getElementById('pcPage').classList.toggle('active',v==='pc');
+    document.getElementById('btnMobile').classList.toggle('active',v==='mobile');
+    document.getElementById('btnPc').classList.toggle('active',v==='pc');
+    updatePreviewLayout();
+  }
+  window.addEventListener('resize', updatePreviewLayout);
+
+  renderMobileList('today'); renderPcList('today'); updatePreviewLayout();
+</script>
+</body>
+</html>
