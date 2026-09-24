@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>UGAME · 会员管理 / 会员配置 V8</title>
+<style>
+:root{
+  --bg:#f5f7fb;
+  --panel:#fff;
+  --line:#e7ebf2;
+  --line-strong:#d9e0ea;
+  --text:#202938;
+  --muted:#8a96a8;
+  --sub:#5d6a7d;
+  --blue:#2f6df6;
+  --blue-soft:#eff5ff;
+  --blue-soft2:#f7faff;
+  --green:#17b26a;
+  --orange:#f79009;
+  --red:#f04438;
+  --purple:#7a5af8;
+  --shadow:0 12px 34px rgba(33,52,85,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-width:1280px;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;color:var(--text);background:var(--bg)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{min-height:100vh}
+.topbar{height:62px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 24px;gap:28px;position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;min-width:138px}
+.brand-mark{display:grid;grid-template-columns:repeat(2,7px);gap:3px}
+.brand-mark i{display:block;width:7px;height:7px;border-radius:50%}.brand-mark i:nth-child(1){background:#84cc16}.brand-mark i:nth-child(2){background:#22c55e}.brand-mark i:nth-child(3){background:#60a5fa}.brand-mark i:nth-child(4){background:#2563eb}
+.brand strong{font-size:22px;letter-spacing:.03em}
+.nav{display:flex;align-items:center;gap:6px;flex:1}
+.nav-item{height:38px;padding:0 13px;border:0;background:transparent;border-radius:10px;color:#344054;display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600}
+.nav-item:hover{background:#f6f8fb}.nav-item.active{background:#edf3ff;color:#245fd7}.nav-item .ico{font-size:14px;opacity:.85}.nav-item .chev{font-size:10px;color:#98a2b3}
+.top-right{display:flex;align-items:center;gap:12px;color:#7b8798;font-size:12px}.user-pill{display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:10px;background:#fff}.avatar{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#16a34a,#93c5fd);border:2px solid #fff;box-shadow:0 0 0 1px #d9e2ec}
+.subbar{height:44px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 30px;gap:18px}
+.crumb{font-size:12px;color:#98a2b3}.crumb b{color:#344054}.subnav{display:flex;height:100%;align-items:flex-end;gap:22px;margin-left:8px}.subnav button{height:100%;border:0;background:transparent;color:#667085;font-size:13px;font-weight:600;position:relative;padding:0 2px}.subnav button.active{color:var(--blue)}.subnav button.active:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--blue);border-radius:2px}
+.page{padding:24px 30px 56px}.shell{max-width:1640px;margin:0 auto}
+.header-card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 4px 18px rgba(16,24,40,.04);overflow:hidden}
+.page-head{padding:20px 22px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+.page-title h1{margin:0;font-size:22px;line-height:1.25}.page-title p{margin:6px 0 0;font-size:12px;color:var(--muted)}
+.master-switch{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;color:#596579;font-size:12px;font-weight:700;background:#fbfcfe}
+.switch{width:38px;height:22px;border-radius:999px;background:#cbd5e1;position:relative;transition:.2s;flex:none}.switch:before{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:2px;left:2px;box-shadow:0 1px 4px rgba(0,0,0,.18);transition:.2s}.switch.on{background:var(--blue)}.switch.on:before{left:18px}
+.tabs{height:52px;display:flex;align-items:flex-end;padding:0 20px;gap:28px;background:#fff}.tab{height:52px;border:0;background:transparent;color:#475467;font-weight:700;font-size:13px;position:relative}.tab.active{color:var(--blue)}.tab.active:after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--blue)}
+.content-card{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(16,24,40,.03)}
+.toolbar{min-height:64px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);gap:16px}.toolbar-left{display:flex;align-items:center;gap:12px}.select{height:36px;min-width:166px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;color:#344054;padding:0 34px 0 12px;font-size:12px;outline:none}.hint{font-size:12px;color:#98a2b3}.primary{height:36px;border:0;border-radius:8px;background:var(--blue);color:#fff;padding:0 15px;font-size:12px;font-weight:700;box-shadow:0 4px 10px rgba(47,109,246,.18)}.primary:hover{background:#245fd7}.secondary{height:36px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;color:#344054;padding:0 14px;font-size:12px;font-weight:650}.secondary:hover{background:#f8fafc}.danger-btn{border-color:#fecaca;color:#dc2626;background:#fff}
+.mode-banner{margin:14px 16px 0;padding:12px 14px;border:1px solid #dbe7ff;background:#f7faff;border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:14px}.mode-banner-left{display:flex;align-items:center;gap:10px}.mode-icon{width:32px;height:32px;border-radius:9px;background:#eaf2ff;color:var(--blue);display:grid;place-items:center;font-weight:800}.mode-banner b{font-size:12px}.mode-banner p{margin:3px 0 0;color:#7c8aa0;font-size:11px}.mode-chip{padding:5px 10px;border-radius:999px;background:#edf3ff;color:#2c60c9;font-size:11px;font-weight:700}
+.table-wrap{padding:14px 16px 0}table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden}th{background:#f8fafc;color:#7a8799;font-weight:700;text-align:left;padding:11px 12px;border-bottom:1px solid var(--line)}td{padding:12px;border-bottom:1px solid #edf1f6;vertical-align:middle;color:#344054}tr:last-child td{border-bottom:0}.name-cell{display:flex;align-items:center;gap:10px}.level-badge{width:34px;height:34px;border-radius:8px;background:#f1f5ff;color:#7aa1ff;display:grid;place-items:center;font-size:10px;font-weight:800}.name-main b{display:block;font-size:12px}.name-main span{display:block;color:#98a2b3;font-size:10px;margin-top:2px}.type-chip{display:inline-flex;align-items:center;height:23px;padding:0 8px;border-radius:6px;font-size:10px;font-weight:700}.type-vip{background:#eff5ff;color:#4d79d8}.type-special{background:#fff5e8;color:#d18416}.type-normal{background:#eefbf5;color:#14895a}.cell-main{font-weight:650}.cell-sub{display:block;color:#98a2b3;font-size:10px;margin-top:3px}.op{display:flex;gap:8px}.link-btn{border:0;background:#eef4ff;color:#2f6df6;border-radius:6px;height:28px;padding:0 9px;font-size:11px;font-weight:700}.link-btn.red{background:#fff1f1;color:#ef4444}.row-paused{opacity:.5;background:#fafbfc}.paused-chip{display:inline-flex;padding:3px 7px;border-radius:999px;background:#f2f4f7;color:#7b8491;font-size:10px;margin-left:8px}.pager{height:56px;display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:0 16px;color:#7d8999;font-size:11px}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.52);display:none;align-items:center;justify-content:center;z-index:100}.overlay.show{display:flex}.modal{width:760px;background:#fff;border-radius:18px;box-shadow:0 24px 80px rgba(15,23,42,.24);overflow:hidden;transform:translateY(8px);animation:rise .18s ease forwards}@keyframes rise{to{transform:translateY(0)}}.modal.sm{width:520px}.modal-head{padding:20px 22px 14px;display:flex;justify-content:space-between;align-items:flex-start}.modal-head h2{margin:0;font-size:18px}.modal-head p{margin:6px 0 0;font-size:12px;color:#98a2b3}.close{border:0;background:transparent;font-size:20px;color:#98a2b3;line-height:1}.modal-body{padding:4px 22px 22px}.modal-foot{padding:14px 22px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;background:#fcfcfd}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:10px}.type-card{border:1px solid var(--line-strong);border-radius:14px;padding:16px;background:#fff;cursor:pointer;transition:.18s;min-height:138px;position:relative}.type-card:hover{border-color:#abc2f7;box-shadow:0 8px 22px rgba(47,109,246,.08)}.type-card.selected{border:2px solid var(--blue);background:#f8fbff;padding:15px}.type-card .check-dot{position:absolute;right:12px;top:12px;width:18px;height:18px;border-radius:50%;border:1px solid #cfd8e6;background:#fff}.type-card.selected .check-dot{border:5px solid var(--blue)}.type-ico{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-weight:800;margin-bottom:12px}.normal-ico{background:#eaf9f1;color:#159260}.vip-ico{background:#eef4ff;color:#4678de}.special-ico{background:#fff5e8;color:#d18416}.type-card b{font-size:14px}.type-card p{margin:7px 0 0;color:#7d8998;font-size:11px;line-height:1.6}.type-card small{display:inline-block;margin-top:10px;color:#a0a9b7;font-size:10px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.form-item.full{grid-column:1/-1}.label{display:flex;align-items:center;gap:4px;font-size:12px;color:#344054;font-weight:700;margin-bottom:7px}.req{color:#f04438}.input-wrap{display:flex;height:40px;border:1px solid var(--line-strong);border-radius:8px;background:#fff;overflow:hidden}.input-wrap:focus-within{border-color:#83a8ff;box-shadow:0 0 0 3px #eef4ff}.input-wrap input{border:0;outline:0;flex:1;min-width:0;padding:0 11px;font-size:12px;color:#344054}.unit{min-width:50px;border-left:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:#98a2b3;font-size:11px;background:#fafbfc}.help{font-size:10px;color:#98a2b3;margin-top:5px}.toggle-card{border:1px solid #dce7fb;background:#f7faff;border-radius:12px;padding:13px 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:18px}.toggle-card b{font-size:12px}.toggle-card p{margin:4px 0 0;color:#73829a;font-size:11px;line-height:1.55}.warning{margin-top:12px;border:1px solid #fed7aa;background:#fffaf2;border-radius:10px;padding:11px 12px;color:#9a5b08;font-size:11px;line-height:1.65}.warning strong{color:#8b4d03}.info{margin-bottom:14px;border:1px solid #dce7fb;background:#f8fbff;border-radius:10px;padding:11px 12px;color:#47627f;font-size:11px;line-height:1.65}.limit-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 18px;margin-top:16px}.limit-field{min-width:0}.limit-field.left-only{grid-column:1}.limit-label{display:flex;align-items:center;gap:4px;font-size:12px;color:#475467;font-weight:700;margin-bottom:8px}.limit-input{display:flex;align-items:center;height:36px;border:1px solid var(--line-strong);border-radius:6px;background:#fff;overflow:hidden}.limit-input:focus-within{border-color:#83a8ff;box-shadow:0 0 0 3px #eef4ff}.limit-input input{border:0;outline:0;flex:1;min-width:0;height:100%;padding:0 12px;font-size:12px;color:#344054;background:#fff}.limit-note{margin-top:6px;font-size:10px;line-height:1.6;color:#98a2b3}
+.confirm-list{margin:10px 0 0;padding:0;list-style:none;border:1px solid var(--line);border-radius:10px;overflow:hidden}.confirm-list li{padding:10px 12px;border-bottom:1px solid var(--line);font-size:11px;color:#526174}.confirm-list li:last-child{border-bottom:0}.confirm-list b{color:#253247}.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(12px);background:#182230;color:#fff;border-radius:9px;padding:10px 14px;font-size:12px;opacity:0;pointer-events:none;transition:.2s;z-index:200}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark"><i></i><i></i><i></i><i></i></div><strong>UGAME</strong></div>
+    <nav class="nav">
+      <button class="nav-item"><span class="ico">⌂</span>运营首页</button>
+      <button class="nav-item active"><span class="ico">♙</span>会员管理 <span class="chev">⌄</span></button>
+      <button class="nav-item"><span class="ico">♟</span>代理 <span class="chev">⌄</span></button>
+      <button class="nav-item"><span class="ico">◇</span>优惠 <span class="chev">⌄</span></button>
+      <button class="nav-item"><span class="ico">▥</span>运营 <span class="chev">⌄</span></button>
+      <button class="nav-item"><span class="ico">◈</span>游戏 <span class="chev">⌄</span></button>
+      <button class="nav-item"><span class="ico">◉</span>财务 <span class="chev">⌄</span></button>
+      <button class="nav-item"><span class="ico">▤</span>报表 <span class="chev">⌄</span></button>
+      <button class="nav-item"><span class="ico">⬡</span>风控 <span class="chev">⌄</span></button>
+      <button class="nav-item"><span class="ico">⚙</span>系统 <span class="chev">⌄</span></button>
+      <button class="nav-item"><span class="ico">▣</span>TGBot管理 <span class="chev">⌄</span></button>
+    </nav>
+    <div class="top-right"><span>2026-09-24 04:06:55</span><div class="user-pill"><span class="avatar"></span><span>zhaxi1aomi</span><span>⌄</span></div></div>
+  </header>
+
+  <div class="subbar">
+    <div class="crumb">会员管理 / <b>会员配置</b></div>
+    <div class="subnav"><button class="active">会员配置</button></div>
+  </div>
+
+  <main class="page">
+    <div class="shell">
+      <section class="header-card">
+        <div class="page-head">
+          <div class="page-title"><h1>会员配置</h1><p>统一维护普通会员、VIP会员及特殊会员的等级规则与权益配置。</p></div>
+          <div class="master-switch"><span>会员功能</span><div class="switch on" id="masterSwitch"></div></div>
+        </div>
+        <div class="tabs">
+          <button class="tab active">会员等级配置</button>
+          <button class="tab">VIP规则配置</button>
+          <button class="tab">VIP返水配置</button>
+          <button class="tab">VIP资源图</button>
+        </div>
+      </section>
+
+      <section class="content-card">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <select class="select" id="typeFilter">
+              <option value="all">全部会员类型</option>
+              <option value="normal">普通会员</option>
+              <option value="vip">VIP会员</option>
+              <option value="special">特殊会员</option>
+            </select>
+            <span class="hint">普通会员与 VIP会员互斥；特殊会员由后台人工调整。</span>
+          </div>
+          <button class="primary" id="addBtn">＋ 新增会员等级</button>
+        </div>
+
+
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th style="width:21%">等级</th><th style="width:12%">会员类型</th><th style="width:18%">晋级条件</th><th style="width:16%">保级 / 降级</th><th style="width:15%">每日提款</th><th style="width:11%">每日返水上限</th><th style="width:7%">操作</th></tr></thead>
+            <tbody id="memberRows">
+              <tr data-type="normal"><td><div class="name-cell"><div class="level-badge" style="background:#eaf9f1;color:#159260">N</div><div class="name-main"><b>普通会员</b><span>普通会员模式</span></div></div></td><td><span class="type-chip type-normal">普通会员</span></td><td><span class="cell-main">不参与自动晋级</span></td><td><span class="cell-main">不参与保级 / 降级</span></td><td><span class="cell-main">3 次</span><span class="cell-sub">日总额 不限</span></td><td>不限</td><td><div class="op"><button class="link-btn" id="editNormal">编辑</button><button class="link-btn red" id="deleteNormal">删除</button></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pager"><span id="rowCount">共 1 条</span><select class="select" style="min-width:92px;height:32px"><option>20条/页</option></select><button class="secondary" style="height:30px;padding:0 10px">‹</button><button class="primary" style="height:30px;padding:0 11px">1</button><button class="secondary" style="height:30px;padding:0 10px">›</button></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- step 1: choose member type -->
+<div class="overlay" id="typeModal">
+  <div class="modal">
+    <div class="modal-head"><div><h2>选择会员类型</h2><p>选择本次要新增或配置的会员类型。</p></div><button class="close" data-close="typeModal">×</button></div>
+    <div class="modal-body">
+      <div class="type-grid">
+        <div class="type-card" data-kind="normal"><span class="check-dot"></span><div class="type-ico normal-ico">N</div><b>普通会员</b><p>不参与 VIP 等级成长体系的会员类型。启用后，会员不进行自动晋级、保级和降级，VIP会员体系暂停生效，用户端不展示会员等级相关入口。</p></div>
+        <div class="type-card" data-kind="vip"><span class="check-dot"></span><div class="type-ico vip-ico">V</div><b>VIP会员</b><p>根据累计存款和有效投注自动晋级，可按规则执行保级和降级。</p></div>
+        <div class="type-card" data-kind="special"><span class="check-dot"></span><div class="type-ico special-ico">★</div><b>特殊会员</b><p>不参与自动晋级、保级和降级，由后台人工调整会员等级。</p></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="secondary" data-close="typeModal">取消</button><button class="primary" id="nextBtn" disabled>下一步</button></div>
+  </div>
+</div>
+
+<!-- ordinary member config -->
+<div class="overlay" id="normalModal">
+  <div class="modal">
+    <div class="modal-head"><div><h2>普通会员配置</h2><p>配置普通会员的名称、提款及返水限制。</p></div><button class="close" data-close="normalModal">×</button></div>
+    <div class="modal-body">
+      <div class="toggle-card">
+        <div><b>启用普通会员</b><p><strong>生效影响：</strong>普通会员与 VIP会员不可同时启用。启用普通会员后，会员不参与 VIP 自动晋级、保级和降级，用户端同步隐藏会员等级相关入口；关闭普通会员后，可重新恢复 VIP会员体系。</p></div>
+        <div class="switch on" id="normalSwitch"></div>
+      </div>
+      
+      <div class="form-grid" style="margin-top:16px">
+        <div class="form-item full"><div class="label">名称 <span class="req">*</span></div><div class="input-wrap"><input id="normalName" value="普通会员" placeholder="请输入名称"/></div></div>
+      </div>
+      <div class="limit-grid">
+        <div class="limit-field">
+          <div class="limit-label">每日提款次数 <span class="req">*</span></div>
+          <div class="limit-input"><input id="withdrawCount" type="number" min="0" value="0" placeholder="请输入每日提款次数"/></div>
+          <div class="limit-note">按站点自然日累计，提款申请提交成功即占用 1 次。</div>
+        </div>
+        <div class="limit-field">
+          <div class="limit-label">每日提款总额度</div>
+          <div class="limit-input"><input id="withdrawAmount" type="text" inputmode="decimal" placeholder="请输入每日提款总额度"/></div>
+          <div class="limit-note">每日 00:00 重置，不作为单笔快捷提现或免审核门槛。</div>
+        </div>
+        <div class="limit-field left-only">
+          <div class="limit-label">每日返水上限</div>
+          <div class="limit-input"><input id="rebateCap" type="text" inputmode="decimal" placeholder="留空表示不限"/></div>
+          <div class="limit-note">留空表示不限，填写 0 表示当日不产生实际返水。</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="secondary" id="backToType">上一步</button><button class="primary" id="saveNormal">保存配置</button></div>
+  </div>
+</div>
+
+<!-- confirmation -->
+<div class="overlay" id="confirmModal">
+  <div class="modal sm">
+    <div class="modal-head"><div><h2>确认启用普通会员？</h2><p>该操作会影响当前 VIP会员体系的生效状态。</p></div><button class="close" data-close="confirmModal">×</button></div>
+    <div class="modal-body">
+      <ul class="confirm-list"><li><b>VIP会员：</b>暂停生效，但保留现有等级与规则配置</li><li><b>用户端：</b>隐藏会员等级相关入口</li><li><b>自动规则：</b>停止自动晋级、保级和降级</li><li><b>恢复方式：</b>关闭普通会员后可重新启用 VIP会员体系</li></ul>
+    </div>
+    <div class="modal-foot"><button class="secondary" data-close="confirmModal">取消</button><button class="primary" id="confirmEnable">确认启用</button></div>
+  </div>
+</div>
+<!-- delete confirmation -->
+<div class="overlay" id="deleteModal">
+  <div class="modal sm">
+    <div class="modal-head"><div><h2>确认删除普通会员？</h2><p>删除后，该会员类型配置将从当前列表中移除。</p></div><button class="close" data-close="deleteModal">×</button></div>
+    <div class="modal-body">
+      <div class="warning"><strong>删除提示：</strong>删除普通会员配置后将不再生效；如需再次使用，可通过【新增会员等级】重新创建。</div>
+    </div>
+    <div class="modal-foot"><button class="secondary" data-close="deleteModal">取消</button><button class="primary danger-btn" id="confirmDeleteNormal">确认删除</button></div>
+  </div>
+</div>
+<div class="toast" id="toast">保存成功</div>
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let selectedKind='';
+const show=id=>$('#'+id).classList.add('show');
+const hide=id=>$('#'+id).classList.remove('show');
+const toast=t=>{const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1600)};
+const updateRowCount=()=>{const v=$('#typeFilter').value;const visible=$$('#memberRows tr[data-type]').filter(r=>r.style.display!=='none'&&(v==='all'||r.dataset.type===v)).length;$('#rowCount').textContent='共 '+visible+' 条';};
+const bindNormalActions=()=>{
+  $('#editNormal')?.addEventListener('click',()=>show('normalModal'));
+  $('#deleteNormal')?.addEventListener('click',()=>show('deleteModal'));
+};
+$$('[data-close]').forEach(b=>b.addEventListener('click',()=>hide(b.dataset.close)));
+$('#addBtn').addEventListener('click',()=>{selectedKind='';$$('.type-card').forEach(c=>c.classList.remove('selected'));$('#nextBtn').disabled=true;show('typeModal')});
+$$('.type-card').forEach(card=>card.addEventListener('click',()=>{selectedKind=card.dataset.kind;$$('.type-card').forEach(c=>c.classList.toggle('selected',c===card));$('#nextBtn').disabled=false}));
+$('#nextBtn').addEventListener('click',()=>{
+  if(selectedKind==='normal'){hide('typeModal');show('normalModal')}
+  else if(selectedKind==='vip'){toast('进入 VIP会员等级新增流程（沿用现有业务能力）')}
+  else if(selectedKind==='special'){toast('进入特殊会员新增流程（沿用现有业务能力）')}
+});
+$('#backToType').addEventListener('click',()=>{hide('normalModal');show('typeModal')});
+$('#normalSwitch').addEventListener('click',e=>e.currentTarget.classList.toggle('on'));
+$('#masterSwitch').addEventListener('click',e=>e.currentTarget.classList.toggle('on'));
+$('#saveNormal').addEventListener('click',()=>{
+  if(!$('#normalName').value.trim()){toast('请输入名称');return}
+  if($('#withdrawCount').value==='' || Number($('#withdrawCount').value)<0){toast('请输入正确的每日提款次数');return}
+  if($('#normalSwitch').classList.contains('on')){show('confirmModal')}else{hide('normalModal');toast('普通会员配置已保存')}
+});
+$('#confirmEnable').addEventListener('click',()=>{
+  hide('confirmModal');hide('normalModal');
+  const row=document.querySelector('tr[data-type="normal"]');
+  if(row){
+    const amount=$('#withdrawAmount').value||'不限', rebate=$('#rebateCap').value||'不限', count=$('#withdrawCount').value;
+    row.innerHTML='<td><div class="name-cell"><div class="level-badge" style="background:#eaf9f1;color:#159260">N</div><div class="name-main"><b>'+($('#normalName').value.trim()||'普通会员')+'</b><span>普通会员模式</span></div></div></td><td><span class="type-chip type-normal">普通会员</span></td><td><span class="cell-main">不参与自动晋级</span></td><td><span class="cell-main">不参与保级 / 降级</span></td><td><span class="cell-main">'+count+' 次</span><span class="cell-sub">日总额 '+amount+'</span></td><td>'+rebate+'</td><td><div class="op"><button class="link-btn" id="editNormal">编辑</button><button class="link-btn red" id="deleteNormal">删除</button></div></td>';
+    bindNormalActions();
+  }
+  toast('普通会员配置已保存');
+});
+$('#editNormal')?.addEventListener('click',()=>show('normalModal'));
+$('#confirmDeleteNormal').addEventListener('click',()=>{
+  const row=document.querySelector('tr[data-type="normal"]');
+  if(row)row.remove();
+  hide('deleteModal');
+  const empty=$('#memberEmpty');
+  if(empty)empty.remove();
+  const v=$('#typeFilter').value;
+  const hasVisible=$$('#memberRows tr[data-type]').some(r=>v==='all'||r.dataset.type===v);
+  if(!hasVisible){
+    const tr=document.createElement('tr');tr.id='memberEmpty';tr.innerHTML='<td colspan="7" style="padding:42px 16px;text-align:center;color:#98a2b3">暂无该会员类型数据</td>';$('#memberRows').appendChild(tr);
+  }
+  updateRowCount();
+  toast('普通会员已删除');
+});
+$('#typeFilter').addEventListener('change',e=>{
+  const v=e.target.value;let visible=0;
+  $$('#memberRows tr[data-type]').forEach(r=>{const showRow=(v==='all'||r.dataset.type===v);r.style.display=showRow?'':'none';if(showRow)visible++});
+  let empty=$('#memberEmpty');
+  if(!visible){
+    if(!empty){empty=document.createElement('tr');empty.id='memberEmpty';empty.innerHTML='<td colspan="7" style="padding:42px 16px;text-align:center;color:#98a2b3">暂无该会员类型数据</td>';$('#memberRows').appendChild(empty)}
+    empty.style.display='';
+  }else if(empty){empty.style.display='none'}
+  const count=$('#rowCount');if(count)count.textContent='共 '+visible+' 条';
+});
+$$('.tab').forEach(t=>t.addEventListener('click',()=>{if(!t.classList.contains('active'))toast('该 Tab 沿用现有业务能力，本次仅设计会员等级配置')}));
+</script>
+</body>
+</html>
