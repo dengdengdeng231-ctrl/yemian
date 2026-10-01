@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>首页快讯 / 跑马灯消息 - 可交互产品原型</title>
+<style>
+:root{
+  --bg:#f5f7fb;--panel:#fff;--text:#1f2937;--muted:#667085;--line:#e5e7eb;
+  --blue:#2f6bff;--blue2:#eef4ff;--red:#ef4444;--green:#16a34a;--orange:#f59e0b;
+  --shadow:0 10px 30px rgba(15,23,42,.08);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{display:grid;grid-template-columns:224px minmax(0,1fr);min-height:100vh}
+.sidebar{background:#fff;border-right:1px solid var(--line);padding:18px 14px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 8px 18px;font-weight:800}.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#6aa6ff,#245fff);color:#fff;display:grid;place-items:center}
+.menu{display:flex;flex-direction:column;gap:5px}.mi{padding:10px 12px;border-radius:8px;color:#475467;font-size:14px}.mi.active{background:var(--blue2);color:var(--blue);font-weight:700}.sub{padding-left:16px}
+.main{min-width:0}.topbar{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px}.crumb{font-size:14px;color:#667085}.top-actions{display:flex;gap:10px;align-items:center;color:#667085;font-size:13px}
+.content{padding:22px 24px 48px}.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.page-head h1{font-size:22px;margin:0}.page-head p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.btn{border:1px solid var(--line);background:#fff;color:#344054;border-radius:8px;padding:9px 14px}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn.danger{color:#b42318}.btn.small{padding:6px 10px;font-size:12px}.btn:disabled{opacity:.45;cursor:not-allowed}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 3px 14px rgba(15,23,42,.03)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);padding:0 14px}.tab{border:0;background:transparent;padding:14px 14px;color:#667085;border-bottom:2px solid transparent}.tab.active{color:var(--blue);border-color:var(--blue);font-weight:700}
+.filters{display:flex;gap:10px;flex-wrap:wrap;padding:16px}.input,.select{border:1px solid #d0d5dd;background:#fff;border-radius:8px;padding:9px 10px;min-height:38px}.input{min-width:190px}.select{min-width:140px}
+.table-wrap{overflow:auto;border-top:1px solid var(--line)}table{width:100%;border-collapse:collapse;min-width:1120px;font-size:13px}th,td{padding:12px 14px;text-align:left;border-bottom:1px solid #eef0f3;vertical-align:middle}th{background:#fafbfc;color:#475467;font-weight:700;white-space:nowrap}.muted{color:#98a2b3}.type{display:inline-flex;padding:3px 8px;border-radius:999px;background:#f2f4f7;color:#475467;font-size:12px}.type.marquee{background:#eef4ff;color:#245fff}
+.switch{position:relative;width:42px;height:24px;display:inline-block}.switch input{opacity:0;width:0;height:0}.slider{position:absolute;inset:0;background:#d0d5dd;border-radius:999px;transition:.2s}.slider:before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}.switch input:checked + .slider{background:var(--blue)}.switch input:checked + .slider:before{transform:translateX(18px)}
+.sort-input{width:64px;border:1px solid #d0d5dd;border-radius:7px;padding:6px 7px;text-align:center}.ops{display:flex;gap:8px;white-space:nowrap}.link-btn{border:0;background:none;color:var(--blue);padding:0}.link-btn.red{color:#d92d20}
+.empty{text-align:center;color:#98a2b3;padding:42px}
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-start;justify-content:center;padding:54px 16px;z-index:50;overflow:auto}.overlay.show{display:flex}.modal{width:min(860px,100%);background:#fff;border-radius:14px;box-shadow:var(--shadow);overflow:hidden}.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line)}.modal-head h2{font-size:18px;margin:0}.x{border:0;background:none;font-size:22px;color:#98a2b3}.modal-body{padding:20px 22px}.modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:15px 22px;border-top:1px solid var(--line)}
+.form-grid{display:grid;grid-template-columns:130px minmax(0,1fr);gap:16px 14px;align-items:start}.label{font-size:13px;color:#475467;padding-top:9px}.req:before{content:"*";color:#f04438;margin-right:4px}.radio-row{display:flex;gap:22px;min-height:38px;align-items:center;flex-wrap:wrap}.radio-row label{display:flex;gap:7px;align-items:center}.hint{font-size:12px;color:#98a2b3;margin-top:6px}.info{background:#f8fbff;border:1px solid #dbeafe;color:#3b5b84;padding:10px 12px;border-radius:8px;font-size:12px;margin-top:9px}.lang-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.lang{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 10px;font-size:12px}.lang.active{border-color:#9bb7ff;background:#eef4ff;color:#245fff}
+.editor{border:1px solid #d0d5dd;border-radius:10px;overflow:hidden}.toolbar{display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--line);padding:8px;background:#fafbfc}.tool{border:1px solid var(--line);background:#fff;border-radius:7px;padding:6px 9px;font-size:12px}.colors{display:flex;gap:6px}.color-dot{width:24px;height:24px;border:2px solid #fff;box-shadow:0 0 0 1px #d0d5dd;border-radius:50%;padding:0}.c-default{background:#344054}.c-blue{background:#2563eb}.c-red{background:#ef4444}.c-orange{background:#f59e0b}.c-green{background:#16a34a}.c-purple{background:#8b5cf6}.editor-area{min-height:150px;padding:12px;outline:none;line-height:1.7;font-size:14px}.count{text-align:right;padding:5px 9px;color:#98a2b3;font-size:11px}.emoji-pop{display:none;position:absolute;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);border-radius:10px;padding:8px;grid-template-columns:repeat(8,32px);gap:4px;z-index:70}.emoji-pop.show{display:grid}.emoji-pop button{border:0;background:#fff;font-size:20px;width:32px;height:32px;border-radius:6px}.emoji-pop button:hover{background:#f2f4f7}
+.toast{position:fixed;right:24px;top:78px;background:#101828;color:#fff;padding:10px 14px;border-radius:8px;opacity:0;transform:translateY(-8px);transition:.2s;z-index:100;pointer-events:none}.toast.show{opacity:1;transform:none}
+.preview-grid{display:grid;grid-template-columns:1.25fr .75fr;gap:16px;padding:16px}.preview-panel{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}.pv-head{padding:12px 14px;border-bottom:1px solid var(--line);font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center}.device-tabs{display:flex;gap:6px}.device-tabs button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 8px;font-size:11px}.device-tabs button.active{border-color:#9bb7ff;background:#eef4ff;color:#245fff}.site{background:#f7fbff;padding:12px;min-height:330px}.hero{height:120px;border-radius:12px;background:linear-gradient(120deg,#eaf3ff,#d6e7ff);display:flex;align-items:center;justify-content:center;color:#3464a3;font-weight:800;letter-spacing:.02em}.ticker{margin-top:8px;background:#fff;border:1px solid #e6eef8;border-radius:9px;height:42px;display:flex;align-items:center;gap:8px;padding:0 10px;overflow:hidden}.speaker{flex:none}.ticker-viewport{overflow:hidden;white-space:nowrap;flex:1}.ticker-track{display:inline-block;min-width:100%;animation:scroll 11s linear infinite}.ticker.paused .ticker-track{animation-play-state:paused}@keyframes scroll{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}@media (prefers-reduced-motion:reduce){.ticker-track{animation:none;transform:none}}
+.site.mobile{max-width:360px;margin:0 auto}.site.mobile .hero{height:145px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.cards div{background:#fff;border:1px solid #e6eef8;border-radius:9px;height:74px;display:grid;place-items:center;color:#667085;font-size:12px}.mobile .cards{grid-template-columns:repeat(2,1fr)}
+.news-list{padding:6px 14px 14px}.news-item{display:grid;grid-template-columns:90px 1fr auto;gap:10px;padding:12px 0;border-bottom:1px solid #eef0f3;align-items:start}.news-time{font-size:12px;color:#98a2b3}.news-text{font-size:13px;line-height:1.6}.news-del{border:0;background:none;color:#d92d20}.tip{font-size:12px;color:#98a2b3;padding:0 14px 14px}.badge-ok{display:inline-flex;padding:2px 7px;border-radius:999px;background:#ecfdf3;color:#027a48;font-size:11px}.badge-off{display:inline-flex;padding:2px 7px;border-radius:999px;background:#f2f4f7;color:#667085;font-size:11px}
+@media(max-width:980px){.app{grid-template-columns:1fr}.sidebar{display:none}.preview-grid{grid-template-columns:1fr}.content{padding:14px}.topbar{padding:0 14px}.form-grid{grid-template-columns:1fr}.label{padding-top:0}.modal{width:min(760px,100%)}.page-head{align-items:flex-start;gap:12px;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">U</div><div>龙壹01.COM</div></div>
+    <nav class="menu">
+      <div class="mi">首页</div><div class="mi">站点</div><div class="mi active">运营</div>
+      <div class="sub"><div class="mi active">消息通知</div><div class="mi">活动管理</div><div class="mi">Banner管理</div></div>
+      <div class="mi">会员</div><div class="mi">财务</div><div class="mi">游戏</div><div class="mi">系统</div>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="topbar"><div class="crumb">运营 / 消息通知 / 消息设置</div><div class="top-actions"><span>UTC-4</span><span>admin</span></div></div>
+    <div class="content">
+      <div class="page-head">
+        <div><h1>消息设置</h1><p>新增跑马灯消息，上架后同步展示到 PC/H5 首页 Banner 下方「首页快讯」。</p></div>
+        <button class="btn primary" id="addBtn">+ 新增系统消息</button>
+      </div>
+      <section class="card">
+        <div class="tabs"><button class="tab active">消息设置</button><button class="tab">消息模板</button></div>
+        <div class="filters"><input class="input" id="keyword" placeholder="搜索消息内容"><select class="select" id="typeFilter"><option value="all">全部类型</option><option value="marquee">跑马灯消息</option><option value="manual">人工消息</option><option value="template">模板消息</option></select><button class="btn" id="queryBtn">查询</button><button class="btn" id="resetBtn">重置</button></div>
+        <div class="table-wrap"><table><thead><tr><th>序号</th><th>消息标题</th><th>消息类型</th><th>上架状态</th><th>截止发送时间</th><th>创建人</th><th>最近操作人</th><th>最近操作时间</th><th>操作</th></tr></thead><tbody id="tbody"></tbody></table></div>
+      </section>
+
+      <section class="card" style="margin-top:16px">
+        <div class="pv-head"><span>用户端效果联动预览</span><span class="muted">PC / H5 同一套数据</span></div>
+        <div class="preview-grid">
+          <div class="preview-panel">
+            <div class="pv-head"><span>首页 Banner 下方「首页快讯」</span><div class="device-tabs"><button id="pcTab" class="active">PC</button><button id="h5Tab">H5</button><button id="pauseBtn">暂停滚动</button></div></div>
+            <div class="site" id="sitePreview"><div class="hero">首页 Banner 区域</div><div class="ticker" id="ticker"><span class="speaker">📢</span><div class="ticker-viewport"><span class="ticker-track" id="tickerText">暂无有效首页快讯</span></div></div><div class="cards"><div>体育</div><div>真人</div><div>彩票</div><div>活动</div></div></div>
+          </div>
+          <div class="preview-panel">
+            <div class="pv-head"><span>消息通知 / 首页快讯</span><span class="muted">发布时间 + 文本内容</span></div>
+            <div class="news-list" id="newsList"></div>
+            <div class="tip">用户可删除自己消息通知中的快讯记录；不会影响后台数据或首页滚动展示。</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head"><h2 id="modalTitle">新增 系统消息</h2><button class="x" id="closeBtn" aria-label="关闭">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="label req">消息类型</div>
+        <div><div class="radio-row"><label><input type="radio" name="msgType" value="manual">人工消息</label><label><input type="radio" name="msgType" value="template">模板消息</label><label><input type="radio" name="msgType" value="marquee" checked>跑马灯消息</label></div><div class="info">跑马灯消息保存后默认未上架；手动上架后才会在 PC/H5 首页 Banner 下方滚动展示。</div></div>
+
+        <div class="label req">截止发送时间</div><div><input class="input" id="deadline" type="datetime-local" step="1" style="min-width:260px"><div class="hint">超过截止时间后自动停止首页滚动，但消息通知中的历史快讯仍保留。</div></div>
+
+        <div class="label">语言</div><div><div class="lang-tabs"><button class="lang active" data-lang="zh_CN">简体中文</button><button class="lang" data-lang="en_US">English</button><button class="lang" data-lang="pt_BR">Português</button><button class="lang" data-lang="vi_VN">Tiếng Việt</button><button class="lang" data-lang="zh_TW">繁體中文</button><button class="lang" data-lang="th_TH">ภาษาไทย</button></div></div>
+
+        <div class="label req">跑马灯内容</div>
+        <div style="position:relative">
+          <div class="editor">
+            <div class="toolbar"><button class="tool" type="button" id="emojiBtn">😊 表情</button><span class="muted" style="font-size:12px">文字颜色：</span><div class="colors"><button class="color-dot c-default" data-color="#344054" aria-label="默认色"></button><button class="color-dot c-blue" data-color="#2563eb" aria-label="蓝色"></button><button class="color-dot c-red" data-color="#ef4444" aria-label="红色"></button><button class="color-dot c-orange" data-color="#f59e0b" aria-label="橙色"></button><button class="color-dot c-green" data-color="#16a34a" aria-label="绿色"></button><button class="color-dot c-purple" data-color="#8b5cf6" aria-label="紫色"></button></div></div>
+            <div id="editorArea" class="editor-area" contenteditable="true" data-placeholder="请输入跑马灯内容，例如：🎉 新人注册即领福利"></div>
+            <div class="count"><span id="charCount">0</span>/200</div>
+          </div>
+          <div class="emoji-pop" id="emojiPop"></div>
+          
+        </div>
+
+        <div class="label req">排序</div><div><input class="input" id="sortNo" type="number" min="1" max="999" value="1" style="min-width:120px;width:120px"><div class="hint">数字越小，首页快讯播放越靠前；相同排序值按创建时间正序。</div></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn" id="cancelBtn">取消</button><button class="btn primary" id="saveBtn">保存</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" aria-live="polite"></div>
+
+<script>
+(function(){
+  const nowBase = new Date();
+  const pad=n=>String(n).padStart(2,'0');
+  const toInputDateTime=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const formatDateTime=v=>{if(!v)return '-'; const d=v instanceof Date?v:new Date(v); if(Number.isNaN(d.getTime()))return String(v).replace('T',' '); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`};
+  const nowText=()=>formatDateTime(new Date());
+  const later=(h)=>{const d=new Date(nowBase.getTime()+h*3600000); return toInputDateTime(d)};
+  let rows=[
+    {id:1,title:'-',type:'marquee',sort:1,online:true,deadline:later(72),creator:'admin',operator:'admin',opTime:'2026-09-29 16:30:00',publishTime:'2026-09-29 16:30:00',contents:{zh_CN:'🎉 新人注册即领专属福利',en_US:'🎉 New users get exclusive rewards'},html:{zh_CN:'🎉 <span style="color:#2563eb">新人注册</span>即领专属福利',en_US:'🎉 New users get exclusive rewards'}},
+    {id:2,title:'-',type:'marquee',sort:2,online:true,deadline:later(48),creator:'admin',operator:'admin',opTime:'2026-09-29 16:45:00',publishTime:'2026-09-29 16:45:00',contents:{zh_CN:'🔥 体育返水活动进行中，精彩持续',en_US:'🔥 Sports rebate event is live'},html:{zh_CN:'🔥 体育返水活动进行中，<span style="color:#ef4444">精彩持续</span>',en_US:'🔥 Sports rebate event is live'}},
+    {id:3,title:'-',type:'marquee',sort:3,online:false,deadline:later(120),creator:'admin',operator:'admin',opTime:'2026-09-29 17:00:00',publishTime:null,contents:{zh_CN:'💎 VIP 专属活动即将开启'},html:{zh_CN:'💎 <span style="color:#8b5cf6">VIP 专属活动</span>即将开启'}}
+  ];
+  let nextId=4, editingId=null, lang='zh_CN', paused=false;
+  const byId=id=>document.getElementById(id);
+  const tbody=byId('tbody'), overlay=byId('overlay'), editor=byId('editorArea'), emojiPop=byId('emojiPop'), toast=byId('toast');
+  const typeName=t=>t==='marquee'?'跑马灯消息':t==='manual'?'人工消息':'模板消息';
+  const esc=s=>(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  function showToast(msg){toast.textContent=msg;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1800)}
+  function fmtDeadline(v){return formatDateTime(v)}
+  function isExpired(r){return new Date(r.deadline).getTime()<=Date.now()}
+  function renderTable(){
+    const kw=byId('keyword').value.trim(), ft=byId('typeFilter').value;
+    const list=rows.filter(r=>(ft==='all'||r.type===ft)&&(!kw||(r.contents.zh_CN||'').includes(kw)));
+    tbody.innerHTML=list.length?list.map((r,i)=>`<tr>
+      <td>${i+1}</td><td>${r.type==='marquee'?'-':esc(r.title)}</td><td><span class="type ${r.type==='marquee'?'marquee':''}">${typeName(r.type)}</span></td>
+      <td><label class="switch"><input type="checkbox" data-toggle-id="${r.id}" ${r.online?'checked':''}><span class="slider"></span></label></td>
+      <td>${fmtDeadline(r.deadline)}</td><td>${r.creator}</td><td>${r.operator}</td><td>${formatDateTime(r.opTime)}</td>
+      <td><div class="ops"><button class="link-btn" data-edit-id="${r.id}">编辑</button><button class="link-btn red" data-del-id="${r.id}">删除</button></div></td>
+    </tr>`).join(''):`<tr><td colspan="10" class="empty">暂无数据</td></tr>`;
+    tbody.querySelectorAll('[data-toggle-id]').forEach(el=>el.addEventListener('change',e=>toggleOnline(+e.target.dataset.toggleId,e.target.checked)));
+    tbody.querySelectorAll('[data-edit-id]').forEach(el=>el.addEventListener('click',e=>openModal(+e.currentTarget.dataset.editId)));
+    tbody.querySelectorAll('[data-del-id]').forEach(el=>el.addEventListener('click',e=>deleteRow(+e.currentTarget.dataset.delId)));
+  }
+  function toggleOnline(id,on){
+    const r=rows.find(x=>x.id===id); if(!r)return;
+    r.online=on; r.operator='admin'; r.opTime=nowText();
+    if(on && !r.publishTime) r.publishTime=r.opTime;
+    showToast(on?'已上架，用户端开始展示':'已下架，用户端停止展示'); renderAll();
+  }
+  function deleteRow(id){if(!confirm('确认删除该跑马灯消息吗？删除后不可恢复。'))return;rows=rows.filter(x=>x.id!==id);showToast('删除成功');renderAll()}
+  function validRows(){return rows.filter(r=>r.type==='marquee'&&r.online&&!isExpired(r)&&r.contents[lang]).sort((a,b)=>a.sort-b.sort||a.id-b.id)}
+  function renderPreview(){
+    const list=validRows(), ticker=byId('ticker'), text=byId('tickerText');
+    if(!list.length){ticker.style.display='none'}else{ticker.style.display='flex';text.innerHTML=list.map(r=>r.html[lang]||esc(r.contents[lang])).join('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;｜&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');}
+    ticker.classList.toggle('paused',paused);
+    const news=rows.filter(r=>r.type==='marquee'&&r.publishTime&&r.contents[lang]).sort((a,b)=>String(b.publishTime).localeCompare(String(a.publishTime)));
+    byId('newsList').innerHTML=news.length?news.map(r=>`<div class="news-item" data-news-id="${r.id}"><div class="news-time">${esc(formatDateTime(r.publishTime))}</div><div class="news-text">${r.html[lang]||esc(r.contents[lang])}</div><button class="news-del" data-news-del="${r.id}">删除</button></div>`).join(''):`<div class="empty">暂无首页快讯</div>`;
+    byId('newsList').querySelectorAll('[data-news-del]').forEach(b=>b.addEventListener('click',e=>{e.currentTarget.closest('.news-item').remove();showToast('已从当前用户消息通知中删除，不影响首页展示')}));
+  }
+  function renderAll(){renderTable();renderPreview()}
+  function openModal(id){
+    editingId=id||null; lang='zh_CN'; document.querySelectorAll('.lang').forEach(x=>x.classList.toggle('active',x.dataset.lang===lang));
+    byId('modalTitle').textContent=id?'编辑 跑马灯消息':'新增 系统消息';
+    const r=id?rows.find(x=>x.id===id):null;
+    byId('deadline').value=r?r.deadline:later(24);byId('sortNo').value=r?r.sort:1;
+    editor.innerHTML=r?(r.html[lang]||esc(r.contents[lang]||'')):''; updateCount();
+    overlay.classList.add('show');overlay.setAttribute('aria-hidden','false');setTimeout(()=>editor.focus(),50)
+  }
+  function closeModal(){overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');emojiPop.classList.remove('show')}
+  function plainText(){return editor.innerText.replace(/\n{3,}/g,'\n\n').trim()}
+  function updateCount(){const n=plainText().length;byId('charCount').textContent=n;byId('charCount').style.color=n>200?'#d92d20':'#98a2b3'}
+  function save(){
+    const dl=byId('deadline').value, sort=Math.max(1,Math.min(999,+byId('sortNo').value||1)), txt=plainText();
+    if(!dl){showToast('请选择截止发送时间');return} if(new Date(dl).getTime()<=Date.now()){showToast('截止发送时间必须晚于当前时间');return} if(!txt){showToast('请输入跑马灯内容');return} if(txt.length>200){showToast('跑马灯内容不能超过200字');return}
+    if(editingId){const r=rows.find(x=>x.id===editingId);r.deadline=dl;r.sort=sort;r.contents[lang]=txt;r.html[lang]=editor.innerHTML;r.operator='admin';r.opTime=nowText();showToast('保存成功，已上架消息将按最新内容展示')}
+    else{rows.push({id:nextId++,title:'-',type:'marquee',sort,online:false,deadline:dl,creator:'admin',operator:'admin',opTime:nowText(),publishTime:null,contents:{[lang]:txt},html:{[lang]:editor.innerHTML}});showToast('保存成功，新数据默认未上架')}
+    closeModal();renderAll();
+  }
+  function execColor(color){editor.focus();try{document.execCommand('foreColor',false,color)}catch(e){}updateCount()}
+  const emojis=['🎉','🔥','🎁','💎','⚽','📢','✨','🚀','🏆','💰','🎯','❤️','👍','⭐','🎮','🧧'];
+  emojiPop.innerHTML=emojis.map(e=>`<button type="button" aria-label="${e}">${e}</button>`).join('');
+  emojiPop.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{editor.focus();document.execCommand('insertText',false,b.textContent);emojiPop.classList.remove('show');updateCount()}));
+  byId('emojiBtn').addEventListener('click',e=>{const r=e.currentTarget.getBoundingClientRect();emojiPop.style.left='0px';emojiPop.style.top='42px';emojiPop.classList.toggle('show')});
+  document.querySelectorAll('.color-dot').forEach(b=>b.addEventListener('click',()=>execColor(b.dataset.color)));
+  editor.addEventListener('input',updateCount);
+  byId('addBtn').addEventListener('click',()=>openModal());byId('closeBtn').addEventListener('click',closeModal);byId('cancelBtn').addEventListener('click',closeModal);byId('saveBtn').addEventListener('click',save);
+  overlay.addEventListener('click',e=>{if(e.target===overlay)closeModal()});
+  byId('queryBtn').addEventListener('click',renderTable);byId('resetBtn').addEventListener('click',()=>{byId('keyword').value='';byId('typeFilter').value='all';renderTable()});
+  byId('keyword').addEventListener('keydown',e=>{if(e.key==='Enter')renderTable()});
+  document.querySelectorAll('.lang').forEach(b=>b.addEventListener('click',()=>{
+    const old=lang; const r=editingId?rows.find(x=>x.id===editingId):null; if(r){r.contents[old]=plainText();r.html[old]=editor.innerHTML}
+    lang=b.dataset.lang;document.querySelectorAll('.lang').forEach(x=>x.classList.toggle('active',x===b));editor.innerHTML=r?(r.html[lang]||esc(r.contents[lang]||'')):'';updateCount();renderPreview();
+  }));
+  byId('pcTab').addEventListener('click',()=>{byId('sitePreview').classList.remove('mobile');byId('pcTab').classList.add('active');byId('h5Tab').classList.remove('active')});
+  byId('h5Tab').addEventListener('click',()=>{byId('sitePreview').classList.add('mobile');byId('h5Tab').classList.add('active');byId('pcTab').classList.remove('active')});
+  byId('pauseBtn').addEventListener('click',()=>{paused=!paused;byId('pauseBtn').textContent=paused?'继续滚动':'暂停滚动';renderPreview()});
+  renderAll();
+})();
+</script>
+</body>
+</html>
